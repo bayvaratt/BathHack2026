@@ -13,6 +13,7 @@ DROP TABLE IF EXISTS flights CASCADE;
 DROP TABLE IF EXISTS airlines CASCADE;
 DROP TABLE IF EXISTS airports CASCADE;
 DROP TABLE IF EXISTS price_averages CASCADE;
+DROP TABLE IF EXISTS flight_segments CASCADE;
 DROP TABLE IF EXISTS flight_prices CASCADE;
 DROP TABLE IF EXISTS destinations CASCADE;
 DROP TABLE IF EXISTS origins CASCADE;
@@ -62,7 +63,26 @@ CREATE TABLE flight_prices (
   airline        text NOT NULL,
   stops          integer NOT NULL DEFAULT 0,
   duration       text NOT NULL,  -- e.g. 'PT8H30M' (ISO 8601)
-  checked_at     timestamptz DEFAULT now() NOT NULL
+  checked_at     timestamptz DEFAULT now() NOT NULL,
+  checked        boolean NOT NULL DEFAULT false  -- has Friend 3 evaluated this price?
+);
+
+-- ============================================
+-- FLIGHT SEGMENTS — legs of a connecting flight
+-- direct flight = 1 row, connecting = 2+ rows
+-- ============================================
+
+CREATE TABLE flight_segments (
+  id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  flight_price_id  uuid NOT NULL REFERENCES flight_prices(id) ON DELETE CASCADE,
+  segment_order    integer NOT NULL,  -- 1 = first leg, 2 = second leg, etc.
+  origin           text NOT NULL REFERENCES origins(iata_code),
+  destination      text NOT NULL REFERENCES destinations(iata_code),
+  flight_number    text NOT NULL,
+  airline          text NOT NULL,
+  departure_at     timestamptz NOT NULL,
+  arrival_at       timestamptz NOT NULL,
+  duration         text NOT NULL  -- e.g. 'PT2H30M'
 );
 
 CREATE INDEX IF NOT EXISTS idx_flight_prices_route ON flight_prices(origin, destination);
