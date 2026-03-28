@@ -28,7 +28,7 @@ export function buildEmailHTML(deals: DealWithSummary[]) {
             ${deal.destination_city}, ${deal.destination_country}
           </div>
           <div style="font-size:15px; color:#6b7280; margin:4px 0;">
-            £${deal.current_price} one way · Flies ${formatDepartureDate(deal.departure_date)}
+            From ${deal.origin_iata} · £${deal.current_price} one way · Flies ${formatDepartureDate(deal.departure_date)}
           </div>
           <div style="font-size:14px; color:#059669; margin-bottom:12px;">
             ${deal.discountPercent}% below average · Usually £${deal.historicalAverage}
