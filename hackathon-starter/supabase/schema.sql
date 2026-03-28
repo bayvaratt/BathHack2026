@@ -5,6 +5,7 @@
 DROP TABLE IF EXISTS notifications CASCADE;
 DROP TABLE IF EXISTS deals CASCADE;
 DROP TABLE IF EXISTS user_preferences CASCADE;
+DROP TABLE IF EXISTS subscribers CASCADE;
 DROP TABLE IF EXISTS profiles CASCADE;
 DROP TABLE IF EXISTS price_history CASCADE;
 DROP TABLE IF EXISTS cabin_prices CASCADE;
@@ -67,30 +68,28 @@ CREATE INDEX IF NOT EXISTS idx_flight_prices_cabin ON flight_prices(cabin_class)
 CREATE INDEX IF NOT EXISTS idx_flight_prices_checked ON flight_prices(checked_at);
 
 -- ============================================
--- PROFILES — extends Supabase Auth
+-- SUBSCRIBERS — no login needed, just email
 -- ============================================
 
-CREATE TABLE profiles (
-  id         uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  full_name  text,
+CREATE TABLE subscribers (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email      text NOT NULL UNIQUE,
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
 -- ============================================
--- USER PREFERENCES — routes users watch
+-- USER PREFERENCES — routes each subscriber watches
+-- one row per destination they pick
 -- ============================================
 
 CREATE TABLE user_preferences (
-  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id     uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  origin      text NOT NULL REFERENCES origins(iata_code),
-  destination text NOT NULL REFERENCES destinations(iata_code),
-  cabin_class cabin_class_enum NOT NULL DEFAULT 'economy',
-  max_price   numeric,
-  currency    text NOT NULL DEFAULT 'GBP',
-  is_active   boolean NOT NULL DEFAULT true,
-  created_at  timestamptz NOT NULL DEFAULT now(),
-  UNIQUE(user_id, origin, destination, cabin_class)
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  subscriber_id uuid NOT NULL REFERENCES subscribers(id) ON DELETE CASCADE,
+  origin        text NOT NULL REFERENCES origins(iata_code),   -- departure airport e.g. BRS
+  destination   text NOT NULL REFERENCES destinations(iata_code), -- arrival airport e.g. MAD
+  cabin_class   cabin_class_enum NOT NULL DEFAULT 'economy',
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(subscriber_id, origin, destination, cabin_class)
 );
 
 -- ============================================
@@ -117,11 +116,11 @@ CREATE INDEX IF NOT EXISTS idx_deals_detected ON deals(detected_at);
 -- ============================================
 
 CREATE TABLE notifications (
-  id      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  deal_id uuid NOT NULL REFERENCES deals(id) ON DELETE CASCADE,
-  sent_at timestamptz NOT NULL DEFAULT now(),
-  is_read boolean NOT NULL DEFAULT false
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  subscriber_id uuid NOT NULL REFERENCES subscribers(id) ON DELETE CASCADE,
+  deal_id       uuid NOT NULL REFERENCES deals(id) ON DELETE CASCADE,
+  sent_at       timestamptz NOT NULL DEFAULT now(),
+  is_read       boolean NOT NULL DEFAULT false
 );
 
-CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_subscriber ON notifications(subscriber_id);
