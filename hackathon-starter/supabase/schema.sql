@@ -112,9 +112,11 @@ CREATE TABLE price_averages (
 -- ============================================
 
 CREATE TABLE subscribers (
-  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  email      text NOT NULL UNIQUE,
-  created_at timestamptz NOT NULL DEFAULT now()
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email        text UNIQUE,          -- optional: for email notifications
+  phone_number text UNIQUE,          -- optional: for WhatsApp notifications e.g. +447911123456
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  CHECK (email IS NOT NULL OR phone_number IS NOT NULL)  -- must have at least one
 );
 
 -- ============================================
