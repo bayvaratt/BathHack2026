@@ -36,10 +36,10 @@ CREATE INDEX IF NOT EXISTS idx_flights_origin_dest ON flights(origin, destinatio
 CREATE INDEX IF NOT EXISTS idx_flights_departure ON flights(departure_at);
 
 -- ============================================
--- CABIN PRICES (economy / business / first)
+-- CABIN PRICES (economy / premium_economy / business / first)
 -- ============================================
 
-CREATE TYPE cabin_class_enum AS ENUM ('economy', 'business', 'first');
+CREATE TYPE cabin_class_enum AS ENUM ('economy', 'premium_economy', 'business', 'first');
 
 CREATE TABLE IF NOT EXISTS cabin_prices (
   id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
