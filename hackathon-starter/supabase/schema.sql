@@ -104,7 +104,6 @@ CREATE TABLE deals (
   cabin_class      cabin_class_enum NOT NULL,
   airline          text NOT NULL,
   departure_date   date NOT NULL,
-  old_price        numeric NOT NULL,
   new_price        numeric NOT NULL,
   currency         text NOT NULL DEFAULT 'GBP',
   discount_percent numeric(5,2) NOT NULL,
