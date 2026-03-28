@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS cabin_prices CASCADE;
 DROP TABLE IF EXISTS flights CASCADE;
 DROP TABLE IF EXISTS airlines CASCADE;
 DROP TABLE IF EXISTS airports CASCADE;
+DROP TABLE IF EXISTS price_averages CASCADE;
 DROP TABLE IF EXISTS flight_prices CASCADE;
 DROP TABLE IF EXISTS destinations CASCADE;
 DROP TABLE IF EXISTS origins CASCADE;
@@ -53,6 +54,7 @@ CREATE TABLE flight_prices (
   id             uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   origin         text NOT NULL REFERENCES origins(iata_code),
   destination    text NOT NULL REFERENCES destinations(iata_code),
+  flight_number  text NOT NULL,  -- e.g. 'BA117' — uniquely identifies the flight
   departure_date date NOT NULL,
   cabin_class    cabin_class_enum NOT NULL DEFAULT 'economy',
   price_amount   numeric NOT NULL,
@@ -66,6 +68,24 @@ CREATE TABLE flight_prices (
 CREATE INDEX IF NOT EXISTS idx_flight_prices_route ON flight_prices(origin, destination);
 CREATE INDEX IF NOT EXISTS idx_flight_prices_cabin ON flight_prices(cabin_class);
 CREATE INDEX IF NOT EXISTS idx_flight_prices_checked ON flight_prices(checked_at);
+
+-- ============================================
+-- PRICE AVERAGES — 90-day average per flight/class
+-- calculated by Friend 3's script
+-- ============================================
+
+CREATE TABLE price_averages (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  origin        text NOT NULL REFERENCES origins(iata_code),
+  destination   text NOT NULL REFERENCES destinations(iata_code),
+  flight_number text NOT NULL,
+  cabin_class   cabin_class_enum NOT NULL,
+  average_price numeric NOT NULL,
+  currency      text NOT NULL DEFAULT 'GBP',
+  sample_count  integer NOT NULL,  -- how many data points used to calculate
+  calculated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(origin, destination, flight_number, cabin_class)
+);
 
 -- ============================================
 -- SUBSCRIBERS — no login needed, just email
