@@ -53,7 +53,7 @@ SELECT
   f.destination,
   (CURRENT_DATE + INTERVAL '30 days')::date,
   f.cabin_class::cabin_class_enum,
-  ROUND((f.base_price + f.variation * SIN(EXTRACT(DOY FROM day) * 0.3 + f.offset))::numeric, 2),
+  ROUND((f.base_price + f.variation * SIN(EXTRACT(DOY FROM day) * 0.3 + f.phase))::numeric, 2),
   'GBP',
   f.airline,
   0,
@@ -122,7 +122,7 @@ CROSS JOIN (VALUES
   ('EDI','ATH','premium_economy', 230, 38, 1.2, 'EasyJet',         'PT3H30M'),
   ('EDI','ATH','business',        470, 68, 1.7, 'EasyJet',         'PT3H30M'),
   ('EDI','ATH','first',           880,108, 2.2, 'EasyJet',         'PT3H30M')
-) AS f(origin, destination, cabin_class, base_price, variation, offset, airline, duration);
+) AS f(origin, destination, cabin_class, base_price, variation, phase, airline, duration);
 
 -- ============================================
 -- STEP 4: 1-STOP connecting flights — 90 days × 4 classes
@@ -138,7 +138,7 @@ SELECT
   f.destination,
   (CURRENT_DATE + INTERVAL '30 days')::date,
   f.cabin_class::cabin_class_enum,
-  ROUND((f.base_price + f.variation * SIN(EXTRACT(DOY FROM day) * 0.3 + f.offset))::numeric, 2),
+  ROUND((f.base_price + f.variation * SIN(EXTRACT(DOY FROM day) * 0.3 + f.phase))::numeric, 2),
   'GBP',
   f.airline,
   1,
@@ -162,7 +162,7 @@ CROSS JOIN (VALUES
   ('EDI','JFK','premium_economy', 730,120, 1.0, 'British Airways', 'PT11H00M'),
   ('EDI','JFK','business',       1600,220, 1.5, 'British Airways', 'PT11H00M'),
   ('EDI','JFK','first',          3200,430, 2.0, 'British Airways', 'PT11H00M')
-) AS f(origin, destination, cabin_class, base_price, variation, offset, airline, duration);
+) AS f(origin, destination, cabin_class, base_price, variation, phase, airline, duration);
 
 -- ============================================
 -- STEP 5: 2-STOP connecting flights — 90 days × 4 classes
@@ -178,7 +178,7 @@ SELECT
   f.destination,
   (CURRENT_DATE + INTERVAL '30 days')::date,
   f.cabin_class::cabin_class_enum,
-  ROUND((f.base_price + f.variation * SIN(EXTRACT(DOY FROM day) * 0.3 + f.offset))::numeric, 2),
+  ROUND((f.base_price + f.variation * SIN(EXTRACT(DOY FROM day) * 0.3 + f.phase))::numeric, 2),
   'GBP',
   f.airline,
   2,
@@ -202,7 +202,7 @@ CROSS JOIN (VALUES
   ('MAN','NRT','premium_economy',1050,170, 1.1, 'Emirates', 'PT20H30M'),
   ('MAN','NRT','business',       2800,380, 1.6, 'Emirates', 'PT20H30M'),
   ('MAN','NRT','first',          5800,650, 2.1, 'Emirates', 'PT20H30M')
-) AS f(origin, destination, cabin_class, base_price, variation, offset, airline, duration);
+) AS f(origin, destination, cabin_class, base_price, variation, phase, airline, duration);
 
 -- ============================================
 -- STEP 6: flight_details — legs for 1-STOP flights
