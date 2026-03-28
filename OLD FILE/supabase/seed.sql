@@ -223,10 +223,13 @@ SELECT
   (CURRENT_DATE + INTERVAL '30 days' + legs.dep)::timestamptz,
   (CURRENT_DATE + legs.arr_offset + legs.arr)::timestamptz
 FROM (
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=1 AND cabin_class='economy'      ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=1 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=1 AND cabin_class='business'    ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=1 AND cabin_class='first'       ORDER BY checked_at DESC LIMIT 1
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=1 AND cabin_class='economy'         ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=1 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=1 AND cabin_class='business'        ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=1 AND cabin_class='first'           ORDER BY checked_at DESC LIMIT 1)
 ) AS fp
 CROSS JOIN (VALUES
   (1, 'EK007', 'LHR', 'DXB', INTERVAL '9 hours',  30, INTERVAL '19 hours 15 minutes'),
@@ -246,10 +249,13 @@ SELECT
   (CURRENT_DATE + INTERVAL '30 days' + legs.dep)::timestamptz,
   (CURRENT_DATE + legs.arr_offset + legs.arr)::timestamptz
 FROM (
-  SELECT id FROM flight_prices WHERE origin='MAN' AND destination='SIN' AND stops=1 AND cabin_class='economy'      ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='MAN' AND destination='SIN' AND stops=1 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='MAN' AND destination='SIN' AND stops=1 AND cabin_class='business'    ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='MAN' AND destination='SIN' AND stops=1 AND cabin_class='first'       ORDER BY checked_at DESC LIMIT 1
+  (SELECT id FROM flight_prices WHERE origin='MAN' AND destination='SIN' AND stops=1 AND cabin_class='economy'         ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='MAN' AND destination='SIN' AND stops=1 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='MAN' AND destination='SIN' AND stops=1 AND cabin_class='business'        ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='MAN' AND destination='SIN' AND stops=1 AND cabin_class='first'           ORDER BY checked_at DESC LIMIT 1)
 ) AS fp
 CROSS JOIN (VALUES
   (1, 'EK019', 'MAN', 'DXB', INTERVAL '6 hours',  30, INTERVAL '17 hours 30 minutes'),
@@ -269,10 +275,13 @@ SELECT
   (CURRENT_DATE + INTERVAL '30 days' + legs.dep)::timestamptz,
   (CURRENT_DATE + legs.arr_offset + legs.arr)::timestamptz
 FROM (
-  SELECT id FROM flight_prices WHERE origin='EDI' AND destination='JFK' AND stops=1 AND cabin_class='economy'      ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='EDI' AND destination='JFK' AND stops=1 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='EDI' AND destination='JFK' AND stops=1 AND cabin_class='business'    ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='EDI' AND destination='JFK' AND stops=1 AND cabin_class='first'       ORDER BY checked_at DESC LIMIT 1
+  (SELECT id FROM flight_prices WHERE origin='EDI' AND destination='JFK' AND stops=1 AND cabin_class='economy'         ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='EDI' AND destination='JFK' AND stops=1 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='EDI' AND destination='JFK' AND stops=1 AND cabin_class='business'        ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='EDI' AND destination='JFK' AND stops=1 AND cabin_class='first'           ORDER BY checked_at DESC LIMIT 1)
 ) AS fp
 CROSS JOIN (VALUES
   (1, 'BA1472', 'EDI', 'LHR', INTERVAL '7 hours',  30, INTERVAL '8 hours 30 minutes'),
@@ -297,10 +306,13 @@ SELECT
   (CURRENT_DATE + legs.dep_offset + legs.dep)::timestamptz,
   (CURRENT_DATE + legs.arr_offset + legs.arr)::timestamptz
 FROM (
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=2 AND cabin_class='economy'      ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=2 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=2 AND cabin_class='business'    ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=2 AND cabin_class='first'       ORDER BY checked_at DESC LIMIT 1
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=2 AND cabin_class='economy'         ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=2 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=2 AND cabin_class='business'        ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='BKK' AND stops=2 AND cabin_class='first'           ORDER BY checked_at DESC LIMIT 1)
 ) AS fp
 CROSS JOIN (VALUES
   (1, 'EK007', 'LHR', 'DXB', 30, INTERVAL '9 hours',  30, INTERVAL '19 hours 15 minutes'),
@@ -321,10 +333,13 @@ SELECT
   (CURRENT_DATE + legs.dep_offset + legs.dep)::timestamptz,
   (CURRENT_DATE + legs.arr_offset + legs.arr)::timestamptz
 FROM (
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='SYD' AND stops=2 AND cabin_class='economy'      ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='SYD' AND stops=2 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='SYD' AND stops=2 AND cabin_class='business'    ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='LHR' AND destination='SYD' AND stops=2 AND cabin_class='first'       ORDER BY checked_at DESC LIMIT 1
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='SYD' AND stops=2 AND cabin_class='economy'         ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='SYD' AND stops=2 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='SYD' AND stops=2 AND cabin_class='business'        ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='LHR' AND destination='SYD' AND stops=2 AND cabin_class='first'           ORDER BY checked_at DESC LIMIT 1)
 ) AS fp
 CROSS JOIN (VALUES
   (1, 'EK007', 'LHR', 'DXB', 30, INTERVAL '8 hours',  30, INTERVAL '18 hours 15 minutes'),
@@ -345,10 +360,13 @@ SELECT
   (CURRENT_DATE + legs.dep_offset + legs.dep)::timestamptz,
   (CURRENT_DATE + legs.arr_offset + legs.arr)::timestamptz
 FROM (
-  SELECT id FROM flight_prices WHERE origin='MAN' AND destination='NRT' AND stops=2 AND cabin_class='economy'      ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='MAN' AND destination='NRT' AND stops=2 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='MAN' AND destination='NRT' AND stops=2 AND cabin_class='business'    ORDER BY checked_at DESC LIMIT 1 UNION ALL
-  SELECT id FROM flight_prices WHERE origin='MAN' AND destination='NRT' AND stops=2 AND cabin_class='first'       ORDER BY checked_at DESC LIMIT 1
+  (SELECT id FROM flight_prices WHERE origin='MAN' AND destination='NRT' AND stops=2 AND cabin_class='economy'         ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='MAN' AND destination='NRT' AND stops=2 AND cabin_class='premium_economy' ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='MAN' AND destination='NRT' AND stops=2 AND cabin_class='business'        ORDER BY checked_at DESC LIMIT 1)
+  UNION ALL
+  (SELECT id FROM flight_prices WHERE origin='MAN' AND destination='NRT' AND stops=2 AND cabin_class='first'           ORDER BY checked_at DESC LIMIT 1)
 ) AS fp
 CROSS JOIN (VALUES
   (1, 'EK319', 'MAN', 'LHR', 30, INTERVAL '7 hours',  30, INTERVAL '8 hours 20 minutes'),
