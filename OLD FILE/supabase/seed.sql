@@ -125,6 +125,158 @@ CROSS JOIN (VALUES
 ) AS f(origin, destination, cabin_class, base_price, variation, phase, airline, duration);
 
 -- ============================================
+-- STEP 3B: MISSING routes to reach 14×3×4 = 168 price averages
+-- All added as direct flights for simplicity
+-- ============================================
+INSERT INTO flight_prices (
+  origin, destination, departure_date,
+  cabin_class, price_amount, price_currency,
+  airline, stops, duration, checked_at, checked
+)
+SELECT
+  f.origin,
+  f.destination,
+  (CURRENT_DATE + INTERVAL '30 days')::date,
+  f.cabin_class::cabin_class_enum,
+  ROUND((f.base_price + f.variation * SIN(EXTRACT(DOY FROM day) * 0.3 + f.phase))::numeric, 2),
+  'GBP',
+  f.airline,
+  0,
+  f.duration,
+  day,
+  true
+FROM generate_series(NOW() - INTERVAL '89 days', NOW(), INTERVAL '1 day') AS day
+CROSS JOIN (VALUES
+  -- ✈ LHR missing routes
+  ('LHR','LIS','economy',  120, 25, 0.1, 'TAP Air Portugal', 'PT2H30M'),
+  ('LHR','LIS','premium_economy', 210, 38, 0.6, 'TAP Air Portugal', 'PT2H30M'),
+  ('LHR','LIS','business', 420, 65, 1.1, 'TAP Air Portugal', 'PT2H30M'),
+  ('LHR','LIS','first',    800,105, 1.6, 'TAP Air Portugal', 'PT2H30M'),
+
+  ('LHR','FCO','economy',  100, 22, 0.2, 'Ryanair',          'PT2H40M'),
+  ('LHR','FCO','premium_economy', 180, 33, 0.7, 'Ryanair',   'PT2H40M'),
+  ('LHR','FCO','business', 390, 58, 1.2, 'Ryanair',          'PT2H40M'),
+  ('LHR','FCO','first',    760, 95, 1.7, 'Ryanair',          'PT2H40M'),
+
+  ('LHR','ATH','economy',  110, 23, 0.3, 'EasyJet',          'PT3H30M'),
+  ('LHR','ATH','premium_economy', 195, 35, 0.8, 'EasyJet',   'PT3H30M'),
+  ('LHR','ATH','business', 410, 60, 1.3, 'EasyJet',          'PT3H30M'),
+  ('LHR','ATH','first',    790, 98, 1.8, 'EasyJet',          'PT3H30M'),
+
+  ('LHR','SIN','economy',  480, 90, 0.4, 'Emirates',         'PT13H00M'),
+  ('LHR','SIN','premium_economy', 830,135, 0.9, 'Emirates',  'PT13H00M'),
+  ('LHR','SIN','business',1900,260, 1.4, 'Emirates',         'PT13H00M'),
+  ('LHR','SIN','first',   4000,500, 1.9, 'Emirates',         'PT13H00M'),
+
+  ('LHR','PVG','economy',  550,100, 0.5, 'China Eastern',    'PT11H00M'),
+  ('LHR','PVG','premium_economy', 950,150, 1.0, 'China Eastern','PT11H00M'),
+  ('LHR','PVG','business',2300,310, 1.5, 'China Eastern',    'PT11H00M'),
+  ('LHR','PVG','first',   4800,580, 2.0, 'China Eastern',    'PT11H00M'),
+
+  -- ✈ MAN missing routes
+  ('MAN','MAD','economy',   95, 20, 0.1, 'Ryanair',          'PT2H40M'),
+  ('MAN','MAD','premium_economy', 170, 30, 0.6, 'Ryanair',   'PT2H40M'),
+  ('MAN','MAD','business', 370, 55, 1.1, 'Ryanair',          'PT2H40M'),
+  ('MAN','MAD','first',    720, 88, 1.6, 'Ryanair',          'PT2H40M'),
+
+  ('MAN','BCN','economy',   90, 19, 0.2, 'Vueling',          'PT2H25M'),
+  ('MAN','BCN','premium_economy', 160, 28, 0.7, 'Vueling',   'PT2H25M'),
+  ('MAN','BCN','business', 355, 52, 1.2, 'Vueling',          'PT2H25M'),
+  ('MAN','BCN','first',    700, 85, 1.7, 'Vueling',          'PT2H25M'),
+
+  ('MAN','CDG','economy',   80, 17, 0.3, 'Air France',       'PT1H45M'),
+  ('MAN','CDG','premium_economy', 145, 26, 0.8, 'Air France','PT1H45M'),
+  ('MAN','CDG','business', 330, 48, 1.3, 'Air France',       'PT1H45M'),
+  ('MAN','CDG','first',    660, 82, 1.8, 'Air France',       'PT1H45M'),
+
+  ('MAN','AMS','economy',   85, 18, 0.4, 'KLM',              'PT1H50M'),
+  ('MAN','AMS','premium_economy', 150, 27, 0.9, 'KLM',       'PT1H50M'),
+  ('MAN','AMS','business', 340, 50, 1.4, 'KLM',              'PT1H50M'),
+  ('MAN','AMS','first',    670, 83, 1.9, 'KLM',              'PT1H50M'),
+
+  ('MAN','ATH','economy',  120, 24, 0.5, 'EasyJet',          'PT3H40M'),
+  ('MAN','ATH','premium_economy', 210, 36, 1.0, 'EasyJet',   'PT3H40M'),
+  ('MAN','ATH','business', 430, 63, 1.5, 'EasyJet',          'PT3H40M'),
+  ('MAN','ATH','first',    820,102, 2.0, 'EasyJet',          'PT3H40M'),
+
+  ('MAN','JFK','economy',  400, 78, 0.6, 'British Airways',  'PT8H45M'),
+  ('MAN','JFK','premium_economy', 700,115, 1.1, 'British Airways','PT8H45M'),
+  ('MAN','JFK','business',1480,195, 1.6, 'British Airways',  'PT8H45M'),
+  ('MAN','JFK','first',   2950,385, 2.1, 'British Airways',  'PT8H45M'),
+
+  ('MAN','BKK','economy',  440, 84, 0.7, 'Emirates',         'PT13H30M'),
+  ('MAN','BKK','premium_economy', 760,125, 1.2, 'Emirates',  'PT13H30M'),
+  ('MAN','BKK','business',1850,255, 1.7, 'Emirates',         'PT13H30M'),
+  ('MAN','BKK','first',   3900,490, 2.2, 'Emirates',         'PT13H30M'),
+
+  ('MAN','SYD','economy',  700,125, 0.8, 'Emirates',         'PT22H00M'),
+  ('MAN','SYD','premium_economy',1180,185, 1.3, 'Emirates',  'PT22H00M'),
+  ('MAN','SYD','business',3300,430, 1.8, 'Emirates',         'PT22H00M'),
+  ('MAN','SYD','first',   6600,710, 2.3, 'Emirates',         'PT22H00M'),
+
+  ('MAN','PVG','economy',  570,105, 0.9, 'China Eastern',    'PT10H30M'),
+  ('MAN','PVG','premium_economy', 970,155, 1.4, 'China Eastern','PT10H30M'),
+  ('MAN','PVG','business',2350,315, 1.9, 'China Eastern',    'PT10H30M'),
+  ('MAN','PVG','first',   4900,590, 2.4, 'China Eastern',    'PT10H30M'),
+
+  -- ✈ EDI missing routes
+  ('EDI','MAD','economy',  100, 21, 0.1, 'Ryanair',          'PT2H45M'),
+  ('EDI','MAD','premium_economy', 178, 32, 0.6, 'Ryanair',   'PT2H45M'),
+  ('EDI','MAD','business', 385, 56, 1.1, 'Ryanair',          'PT2H45M'),
+  ('EDI','MAD','first',    740, 92, 1.6, 'Ryanair',          'PT2H45M'),
+
+  ('EDI','LIS','economy',  115, 23, 0.2, 'TAP Air Portugal', 'PT3H00M'),
+  ('EDI','LIS','premium_economy', 200, 35, 0.7, 'TAP Air Portugal','PT3H00M'),
+  ('EDI','LIS','business', 415, 62, 1.2, 'TAP Air Portugal', 'PT3H00M'),
+  ('EDI','LIS','first',    795,100, 1.7, 'TAP Air Portugal', 'PT3H00M'),
+
+  ('EDI','CDG','economy',   82, 17, 0.3, 'Air France',       'PT1H55M'),
+  ('EDI','CDG','premium_economy', 148, 27, 0.8, 'Air France','PT1H55M'),
+  ('EDI','CDG','business', 335, 49, 1.3, 'Air France',       'PT1H55M'),
+  ('EDI','CDG','first',    665, 82, 1.8, 'Air France',       'PT1H55M'),
+
+  ('EDI','AMS','economy',   87, 18, 0.4, 'KLM',              'PT1H55M'),
+  ('EDI','AMS','premium_economy', 153, 28, 0.9, 'KLM',       'PT1H55M'),
+  ('EDI','AMS','business', 342, 50, 1.4, 'KLM',              'PT1H55M'),
+  ('EDI','AMS','first',    672, 83, 1.9, 'KLM',              'PT1H55M'),
+
+  ('EDI','FCO','economy',  105, 22, 0.5, 'Ryanair',          'PT2H55M'),
+  ('EDI','FCO','premium_economy', 185, 33, 1.0, 'Ryanair',   'PT2H55M'),
+  ('EDI','FCO','business', 395, 58, 1.5, 'Ryanair',          'PT2H55M'),
+  ('EDI','FCO','first',    765, 96, 2.0, 'Ryanair',          'PT2H55M'),
+
+  ('EDI','DXB','economy',  340, 67, 0.6, 'Emirates',         'PT7H30M'),
+  ('EDI','DXB','premium_economy', 600, 97, 1.1, 'Emirates',  'PT7H30M'),
+  ('EDI','DXB','business',1270,178, 1.6, 'Emirates',         'PT7H30M'),
+  ('EDI','DXB','first',   2550,345, 2.1, 'Emirates',         'PT7H30M'),
+
+  ('EDI','BKK','economy',  450, 86, 0.7, 'Emirates',         'PT14H00M'),
+  ('EDI','BKK','premium_economy', 775,128, 1.2, 'Emirates',  'PT14H00M'),
+  ('EDI','BKK','business',1870,258, 1.7, 'Emirates',         'PT14H00M'),
+  ('EDI','BKK','first',   3950,495, 2.2, 'Emirates',         'PT14H00M'),
+
+  ('EDI','NRT','economy',  540, 98, 0.8, 'Japan Airlines',   'PT12H30M'),
+  ('EDI','NRT','premium_economy', 920,153, 1.3, 'Japan Airlines','PT12H30M'),
+  ('EDI','NRT','business',2250,305, 1.8, 'Japan Airlines',   'PT12H30M'),
+  ('EDI','NRT','first',   5600,610, 2.3, 'Japan Airlines',   'PT12H30M'),
+
+  ('EDI','SIN','economy',  490, 92, 0.9, 'Emirates',         'PT13H30M'),
+  ('EDI','SIN','premium_economy', 845,138, 1.4, 'Emirates',  'PT13H30M'),
+  ('EDI','SIN','business',1950,265, 1.9, 'Emirates',         'PT13H30M'),
+  ('EDI','SIN','first',   4100,505, 2.4, 'Emirates',         'PT13H30M'),
+
+  ('EDI','SYD','economy',  710,128, 1.0, 'Emirates',         'PT22H30M'),
+  ('EDI','SYD','premium_economy',1190,188, 1.5, 'Emirates',  'PT22H30M'),
+  ('EDI','SYD','business',3350,435, 2.0, 'Emirates',         'PT22H30M'),
+  ('EDI','SYD','first',   6650,715, 2.5, 'Emirates',         'PT22H30M'),
+
+  ('EDI','PVG','economy',  560,103, 1.1, 'China Eastern',    'PT11H30M'),
+  ('EDI','PVG','premium_economy', 960,153, 1.6, 'China Eastern','PT11H30M'),
+  ('EDI','PVG','business',2320,313, 2.1, 'China Eastern',    'PT11H30M'),
+  ('EDI','PVG','first',   4850,585, 2.6, 'China Eastern',    'PT11H30M')
+) AS f(origin, destination, cabin_class, base_price, variation, phase, airline, duration);
+
+-- ============================================
 -- STEP 4: 1-STOP connecting flights — 90 days × 4 classes
 -- 3 routes, stops = 1 (2 legs each)
 -- ============================================
