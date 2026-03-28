@@ -27,103 +27,127 @@ const supabase = createClient(
 
 | Table | Description |
 |---|---|
-| `airports` | Reference — IATA airport codes |
-| `airlines` | Reference — IATA airline codes |
-| `flights` | One row per unique flight |
-| `cabin_prices` | Economy / Business / First price per flight |
-| `price_history` | Price snapshot every time Amadeus is polled |
+| `origins` | Departure airports (IATA code, city, country) |
+| `destinations` | Arrival airports (IATA code, city, country, region) |
+| `flight_prices` | One row per flight per poll — this IS the price history |
 | `profiles` | User accounts (linked to Supabase Auth) |
 | `user_preferences` | Routes & cabin class each user watches |
 | `deals` | Discounts detected by the AI system |
 | `notifications` | Alerts sent to users |
 
+### Cabin classes supported:
+`economy` | `premium_economy` | `business` | `first`
+
 ---
 
-## Friend 2 — Amadeus API → Database
+## Data Flow
 
-Every time you poll Amadeus, do this in order:
+```
+Duffel API (Friend 2)
+    ↓ every poll, insert into
+origins → destinations → flight_prices
 
-### 1. Insert airport (if not exists)
+AI System (Friend 3)
+    ↓ reads flight_prices, compares prices over time
+    ↓ detects drop → inserts into deals
+    ↓ queries user_preferences → inserts into notifications
+
+Frontend (Friend 1)
+    ↓ reads notifications + deals for logged-in user
+```
+
+---
+
+## Friend 2 — Duffel API → Database
+
+Every time you poll Duffel, for each offer do this in order:
+
+### 1. Insert origin airport (if not exists)
 ```js
-await supabase.from('airports').upsert({
+await supabase.from('origins').upsert({
   iata_code: 'LHR',
-  name: 'Heathrow Airport',
   city: 'London',
   country: 'UK'
 }, { onConflict: 'iata_code' })
 ```
 
-### 2. Insert airline (if not exists)
+### 2. Insert destination airport (if not exists)
 ```js
-await supabase.from('airlines').upsert({
-  iata_code: 'BA',
-  name: 'British Airways'
+await supabase.from('destinations').upsert({
+  iata_code: 'JFK',
+  city: 'New York',
+  country: 'US',
+  region: 'Americas'
 }, { onConflict: 'iata_code' })
 ```
 
-### 3. Insert flight (if not exists)
+### 3. Insert flight price (ALWAYS — every poll = new row)
 ```js
-const { data: flight } = await supabase.from('flights').upsert({
+await supabase.from('flight_prices').insert({
   origin: 'LHR',
   destination: 'JFK',
-  departure_at: '2026-04-01T10:00:00Z',
-  arrival_at: '2026-04-01T13:00:00Z',
-  duration_minutes: 480,
+  departure_date: '2026-04-01',         // date only
+  cabin_class: 'economy',               // 'economy' | 'premium_economy' | 'business' | 'first'
+  price_amount: 299.99,
+  price_currency: 'GBP',
+  airline: 'British Airways',           // plain text from Duffel offer.owner.name
   stops: 0,
-  airline_code: 'BA',
-  flight_number: 'BA117',
-  fetched_at: new Date().toISOString()
-}, { onConflict: 'flight_number,departure_at' }).select().single()
-```
-
-### 4. Upsert cabin prices (economy / business / first)
-```js
-const { data: cabinPrice } = await supabase.from('cabin_prices').upsert({
-  flight_id: flight.id,
-  cabin_class: 'economy', // 'economy' | 'business' | 'first'
-  price: 299.99,
-  currency: 'GBP',
-  seats_available: 12,
-}, { onConflict: 'flight_id,cabin_class' }).select().single()
-```
-
-### 5. Always insert into price_history (every poll)
-```js
-await supabase.from('price_history').insert({
-  cabin_price_id: cabinPrice.id,
-  price: 299.99,
-  seats_available: 12,
-  recorded_at: new Date().toISOString()
+  duration: 'PT8H30M',                  // ISO 8601 from Duffel segment.duration
+  checked_at: new Date().toISOString()
 })
 ```
+
+### Duffel field mapping:
+| Duffel field | Our column |
+|---|---|
+| `slices[0].origin.iata_code` | `origin` |
+| `slices[0].destination.iata_code` | `destination` |
+| `slices[0].segments[0].departing_at` (date part) | `departure_date` |
+| `slices[0].segments[0].passengers[0].cabin_class` | `cabin_class` |
+| `total_amount` | `price_amount` |
+| `total_currency` | `price_currency` |
+| `owner.name` | `airline` |
+| `slices[0].segments[0].stops.length` | `stops` |
+| `slices[0].duration` | `duration` |
 
 ---
 
 ## Friend 3 — AI / Rule-Based System
 
-### Read price history to detect drops
+### Read latest prices and detect drops
 ```js
+// Get last 2 price snapshots for each route+cabin combo
 const { data } = await supabase
-  .from('price_history')
-  .select('*, cabin_prices(*, flights(*))')
-  .order('recorded_at', { ascending: false })
-  .limit(1000)
+  .from('flight_prices')
+  .select('*')
+  .eq('origin', 'LHR')
+  .eq('destination', 'JFK')
+  .eq('cabin_class', 'economy')
+  .order('checked_at', { ascending: false })
+  .limit(100)
+
+// Compare consecutive rows to find price drops
+// If (previous_price - current_price) / previous_price > threshold → it's a deal
 ```
 
 ### Insert a deal when discount detected
 ```js
 const { data: deal } = await supabase.from('deals').insert({
-  cabin_price_id: 'cabin-price-uuid-here',
+  origin: 'LHR',
+  destination: 'JFK',
+  cabin_class: 'economy',
+  airline: 'British Airways',
+  departure_date: '2026-04-01',
   old_price: 499.99,
   new_price: 299.99,
-  discount_percent: 40.0,
-  detected_at: new Date().toISOString()
+  currency: 'GBP',
+  discount_percent: 40.0
 }).select().single()
 ```
 
-### Send notification to matching users
+### Notify matching users
 ```js
-// Find users watching this route + cabin class
+// Find users watching this route + cabin class within their budget
 const { data: users } = await supabase
   .from('user_preferences')
   .select('user_id')
@@ -131,12 +155,12 @@ const { data: users } = await supabase
   .eq('destination', 'JFK')
   .eq('cabin_class', 'economy')
   .eq('is_active', true)
-  .lte('max_price', 299.99) // only notify if within their budget
+  .lte('max_price', 299.99)
 
-// Insert notifications for each user
+// Insert a notification for each matching user
 const notifications = users.map(u => ({
   user_id: u.user_id,
-  deal_id: deal.id,
+  deal_id: deal.id
 }))
 
 await supabase.from('notifications').insert(notifications)
@@ -144,20 +168,22 @@ await supabase.from('notifications').insert(notifications)
 
 ---
 
-## Data Flow Summary
+## Friend 1 — Frontend
 
+### Get unread notifications for logged-in user
+```js
+const { data } = await supabase
+  .from('notifications')
+  .select('*, deals(*)')
+  .eq('user_id', currentUserId)
+  .eq('is_read', false)
+  .order('sent_at', { ascending: false })
 ```
-Amadeus API (Friend 2)
-    ↓ inserts into
-airports → airlines → flights → cabin_prices → price_history
 
-AI System (Friend 3)
-    ↓ reads price_history, detects drop
-    ↓ inserts into deals
-    ↓ queries user_preferences for matching users
-    ↓ inserts into notifications
-
-Frontend (Friend 1)
-    ↓ reads notifications for logged-in user
-    ↓ reads deals + flights for deal details
+### Mark notification as read
+```js
+await supabase
+  .from('notifications')
+  .update({ is_read: true })
+  .eq('id', notificationId)
 ```
