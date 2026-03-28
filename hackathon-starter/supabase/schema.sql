@@ -92,7 +92,6 @@ CREATE TABLE price_averages (
   cabin_class   cabin_class_enum NOT NULL,
   average_price numeric NOT NULL,
   currency      text NOT NULL DEFAULT 'GBP',
-  sample_count  integer NOT NULL,
   calculated_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE(origin, destination, cabin_class)
 );
