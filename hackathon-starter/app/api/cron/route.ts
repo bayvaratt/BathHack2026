@@ -142,7 +142,7 @@ export async function GET(request: Request) {
           .eq('origin', origin.code)
           .eq('destination', dest.code)
           .eq('cabin_class', cabinClass)
-          .gte('created_at', since.toISOString())
+          .gte('checked_at', since.toISOString())
 
         if (prices && prices.length > 0) {
           const avg =
