@@ -27,26 +27,26 @@ const toOptions = [
 
 const durationUnits = ["days", "weeks", "months"];
 
-// Destinations plotted as [x%, y%] on the SVG canvas
+// Destinations spread around center (50,50) of the SVG canvas
 const destinations = [
-  { label: "Amsterdam",  x: 47, y: 28 },
-  { label: "Paris",      x: 44, y: 33 },
-  { label: "Barcelona",  x: 42, y: 40 },
-  { label: "Rome",       x: 50, y: 42 },
-  { label: "Athens",     x: 55, y: 46 },
-  { label: "Lisbon",     x: 38, y: 42 },
-  { label: "Madrid",     x: 40, y: 40 },
-  { label: "Dubai",      x: 65, y: 48 },
-  { label: "Bangkok",    x: 75, y: 55 },
-  { label: "Singapore",  x: 78, y: 62 },
-  { label: "Tokyo",      x: 85, y: 38 },
-  { label: "Shanghai",   x: 82, y: 42 },
-  { label: "Sydney",     x: 87, y: 75 },
-  { label: "New York",   x: 22, y: 38 },
+  { label: "Amsterdam",  x: 55, y: 22 },
+  { label: "Paris",      x: 42, y: 28 },
+  { label: "Barcelona",  x: 30, y: 38 },
+  { label: "Rome",       x: 58, y: 38 },
+  { label: "Athens",     x: 68, y: 44 },
+  { label: "Lisbon",     x: 18, y: 48 },
+  { label: "Madrid",     x: 24, y: 56 },
+  { label: "Dubai",      x: 78, y: 34 },
+  { label: "Bangkok",    x: 88, y: 52 },
+  { label: "Singapore",  x: 85, y: 68 },
+  { label: "Tokyo",      x: 92, y: 22 },
+  { label: "Shanghai",   x: 82, y: 14 },
+  { label: "Sydney",     x: 90, y: 80 },
+  { label: "New York",   x: 8,  y: 32 },
 ];
 
-// Origin hub position
-const origin = { x: 45, y: 25 };
+// Origin hub — dead centre
+const origin = { x: 50, y: 50 };
 
 // Build curved arc path between two points
 function arcPath(
@@ -89,7 +89,7 @@ function FlightMapBackground() {
           .flight-path:nth-child(4n)  { animation-duration: 4.5s; animation-delay: -0.5s; }
           .flight-path:nth-child(5n)  { animation-duration: 7s; animation-delay: -3s; }
         `}</style>
-        <radialGradient id="bgGrad" cx="45%" cy="25%" r="70%">
+        <radialGradient id="bgGrad" cx="50%" cy="50%" r="60%">
           <stop offset="0%"   stopColor="hsl(30 95% 55%)" stopOpacity="0.12" />
           <stop offset="100%" stopColor="hsl(30 95% 55%)" stopOpacity="0" />
         </radialGradient>
@@ -169,22 +169,22 @@ const Notify = () => {
       <Navbar hideCurrency />
 
       {/* Hero section with map background */}
-      <div className="relative flex flex-col items-center justify-center overflow-hidden" style={{ minHeight: "60vh" }}>
+      <div className="relative flex flex-col items-center justify-center overflow-hidden" style={{ minHeight: "80vh" }}>
         <FlightMapBackground />
 
         {/* Gradient fade at bottom */}
         <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-background to-transparent" />
 
         {/* Hero content */}
-        <div className="relative z-10 text-center max-w-lg px-6 py-16">
-          <div className="inline-block mb-4 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-heading tracking-widest uppercase">
+        <div className="relative z-10 text-center max-w-2xl px-6 py-20">
+          <div className="inline-block mb-6 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-heading tracking-widest uppercase">
             Flight Deal Monitor
           </div>
-          <h1 className="font-body text-4xl font-normal text-foreground leading-tight mb-3">
+          <h1 className="font-body text-6xl font-normal text-foreground leading-tight mb-4">
             Track prices.<br />Catch deals.<br />
             <span className="text-primary font-semibold">Get notified.</span>
           </h1>
-          <p className="font-body text-base text-muted-foreground mb-8">
+          <p className="font-body text-lg text-muted-foreground mb-10">
             Our agent monitors 14 destinations 24/7 and alerts you the moment prices drop.
           </p>
 
@@ -206,7 +206,7 @@ const Notify = () => {
             : "opacity-0 max-h-0 -translate-y-4 overflow-hidden pointer-events-none"
         }`}
       >
-        <div className="w-full max-w-xl">
+        <div className="w-full max-w-2xl">
           {/* Connecting line from hero */}
           <div className="flex justify-center mb-6">
             <div className="w-px h-10 bg-gradient-to-b from-primary/40 to-transparent" />
