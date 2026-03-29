@@ -9,7 +9,7 @@ const DAYS_AHEAD = 30
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   if (
-    process.env.NODE_ENV === 'production' &&
+    process.env.CRON_SECRET &&
     authHeader !== `Bearer ${process.env.CRON_SECRET}`
   ) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
