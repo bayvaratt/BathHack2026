@@ -4,7 +4,7 @@ import { sendNotificationsForDeal } from '@/lib/notifications'
 import { supabase } from '@/lib/supabase'
 
 const CABIN_CLASSES = ['economy', 'premium_economy', 'business', 'first'] as const
-const DEAL_THRESHOLD = 0.3
+const DEAL_THRESHOLD = 0.05
 const BATCH_SIZE = 10
 // Rotate through 4 dates spread across next month — each run picks a different one
 const DATE_OFFSETS = [7, 14, 21, 28]
@@ -134,7 +134,7 @@ export async function GET(request: Request) {
           .eq('origin', origin.code)
           .eq('destination', dest.code)
           .eq('cabin_class', cabinClass)
-          .gte('checked_at', since.toISOString())
+          .gte('created_at', since.toISOString())
 
         if (prices && prices.length > 0) {
           const avg =
