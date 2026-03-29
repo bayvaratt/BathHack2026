@@ -12,6 +12,7 @@ export interface Deal {
   currency: string;
   discount_percent: number;
   detected_at: string;
+  duration?: string;
   destinations: {
     city: string;
     country: string;
@@ -46,10 +47,25 @@ export const useDeals = (cabinClass: string = "All") => {
       query = query.eq("cabin_class", cabinClassMap[cabinClass]);
     }
 
-    query.then(({ data }) => {
-      if (data) {
+    query.then(async ({ data }) => {
+      if (data && data.length > 0) {
+        // Fetch durations from flight_prices for matching routes
+        const { data: prices } = await supabase
+          .from("flight_prices")
+          .select("origin, destination, cabin_class, departure_date, duration")
+          .in("origin", [...new Set(data.map((d) => d.origin))])
+          .in("destination", [...new Set(data.map((d) => d.destination))]);
+
+        const durMap: Record<string, string> = {};
+        prices?.forEach((p) => {
+          const key = `${p.origin}-${p.destination}-${p.cabin_class}-${p.departure_date}`;
+          if (p.duration) durMap[key] = p.duration;
+        });
+
         const grouped: DealsByRegion = {};
         data.forEach((deal) => {
+          const key = `${deal.origin}-${deal.destination}-${deal.cabin_class}-${deal.departure_date}`;
+          deal.duration = durMap[key];
           const region = deal.destinations?.region || "Other";
           if (!grouped[region]) grouped[region] = [];
           if (grouped[region].length < 6) grouped[region].push(deal);

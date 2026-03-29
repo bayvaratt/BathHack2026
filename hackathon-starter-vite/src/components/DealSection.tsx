@@ -13,6 +13,7 @@ interface Deal {
   departureDate: string;
   originCode: string;
   destinationCode: string;
+  duration?: string;
 }
 
 interface DealSectionProps {
@@ -47,6 +48,7 @@ const DealSection = ({ region, deals }: DealSectionProps) => {
             departureDate={deal.departureDate}
             originCode={deal.originCode}
             destinationCode={deal.destinationCode}
+            duration={deal.duration}
           />
         ))}
       </div>

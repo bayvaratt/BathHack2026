@@ -25,6 +25,7 @@ interface DealCardProps {
   departureDate: string;
   originCode: string;
   destinationCode: string;
+  duration?: string;
 }
 
 const buildGoogleFlightsUrl = (originCode: string, destinationCode: string, departureDate: string) => {
@@ -32,7 +33,20 @@ const buildGoogleFlightsUrl = (originCode: string, destinationCode: string, depa
   return `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}`;
 };
 
-const DealCard = ({ name, country, price, originalPrice, discount, image, cabinClass, origin, airline, departureDate, originCode, destinationCode }: DealCardProps) => {
+const formatDuration = (iso: string) => {
+  const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+  if (!match) return iso;
+  const h = match[1] ? `${match[1]}h` : "";
+  const m = match[2] ? `${match[2]}m` : "";
+  return [h, m].filter(Boolean).join(" ");
+};
+
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+};
+
+const DealCard = ({ name, country, price, originalPrice, discount, image, cabinClass, origin, airline, departureDate, originCode, destinationCode, duration }: DealCardProps) => {
   return (
     <a
       href={buildGoogleFlightsUrl(originCode, destinationCode, departureDate)}
@@ -69,10 +83,20 @@ const DealCard = ({ name, country, price, originalPrice, discount, image, cabinC
           <p className="font-body text-xs text-muted-foreground">{country}</p>
         </div>
 
-        {/* Flights from + airline */}
+        {/* Route + duration */}
+        <div className="flex items-center justify-between text-sm font-body mb-1">
+          <span className="font-semibold text-foreground tracking-wide">
+            {originCode} → {destinationCode}
+          </span>
+          {duration && (
+            <span className="text-xs text-muted-foreground">{formatDuration(duration)}</span>
+          )}
+        </div>
+
+        {/* Departure date + airline */}
         <div className="flex items-center justify-between text-xs font-body text-muted-foreground mb-3">
-          <span>Flights from <span className="font-semibold text-foreground">{origin}</span></span>
-          <span className="text-foreground/60">{airline}</span>
+          <span>{formatDate(departureDate)}</span>
+          <span>{airline}</span>
         </div>
 
         {/* Divider */}

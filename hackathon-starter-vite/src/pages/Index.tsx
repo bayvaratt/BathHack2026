@@ -53,6 +53,7 @@ const Index = () => {
                 departureDate: d.departure_date,
                 originCode: d.origin,
                 destinationCode: d.destination,
+                duration: d.duration,
               };
             });
             return <DealSection key={region} region={region} deals={mapped} />;
