@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import FlightClassSelector, { type FlightClass } from "@/components/FlightClassSelector";
 import { Input } from "@/components/ui/input";
@@ -12,37 +12,103 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/lib/supabase";
+import { saveNotificationPreference } from "@/lib/notify";
+import { toast } from "sonner";
 
-const fromOptions = [
-  { value: "lhr", label: "London Heathrow (LHR)" },
-  { value: "jfk", label: "New York JFK (JFK)" },
-  { value: "bkk", label: "Bangkok (BKK)" },
-  { value: "nrt", label: "Tokyo Narita (NRT)" },
-];
-
-const toOptions = [
-  { value: "everywhere", label: "Everywhere" },
-  { value: "europe", label: "Europe" },
-  { value: "asia", label: "Asia" },
-  { value: "americas", label: "Americas" },
-];
+type AirportOption = {
+  value: string;
+  label: string;
+};
 
 const durationUnits = ["days", "weeks", "months", "years"];
 
 const Notify = () => {
   const [showSetup, setShowSetup] = useState(false);
   const [flightClass, setFlightClass] = useState<FlightClass>("Economy");
+  const [originOptions, setOriginOptions] = useState<AirportOption[]>([]);
+  const [destinationOptions, setDestinationOptions] = useState<AirportOption[]>([]);
   const [from, setFrom] = useState("");
-  const [to, setTo] = useState("everywhere");
+  const [to, setTo] = useState("");
   const [within, setWithin] = useState("");
   const [unit, setUnit] = useState("days");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [consent, setConsent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    async function loadAirportOptions() {
+      const [{ data: origins, error: originsError }, { data: destinations, error: destinationsError }] =
+        await Promise.all([
+          supabase.from("origins").select("iata_code, city"),
+          supabase.from("destinations").select("iata_code, city"),
+        ]);
+
+      if (originsError || destinationsError) {
+        toast.error("Unable to load route options from Supabase.");
+        return;
+      }
+
+      setOriginOptions(
+        (origins ?? []).map((airport) => ({
+          value: airport.iata_code,
+          label: `${airport.city} (${airport.iata_code})`,
+        })),
+      );
+
+      setDestinationOptions(
+        (destinations ?? []).map((airport) => ({
+          value: airport.iata_code,
+          label: `${airport.city} (${airport.iata_code})`,
+        })),
+      );
+    }
+
+    loadAirportOptions();
+  }, []);
 
   const handleWithinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (val === "" || /^\d+$/.test(val)) {
       setWithin(val);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!from || !to) {
+      toast.error("Please choose both an origin and destination.");
+      return;
+    }
+
+    if (!email && !phoneNumber) {
+      toast.error("Please enter an email or WhatsApp phone number.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await saveNotificationPreference({
+        email,
+        phoneNumber,
+        origin: from,
+        destination: to,
+        cabinClass: flightClass,
+      });
+
+      toast.success("Preference saved. Matching deals can now be sent.");
+      setEmail("");
+      setPhoneNumber("");
+      setConsent(false);
+      setWithin("");
+      setUnit("days");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to save preference.",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -103,7 +169,7 @@ const Notify = () => {
                       <SelectValue placeholder="Enter location" />
                     </SelectTrigger>
                     <SelectContent>
-                      {fromOptions.map((o) => (
+                      {originOptions.map((o) => (
                         <SelectItem key={o.value} value={o.value}>
                           {o.label}
                         </SelectItem>
@@ -116,10 +182,10 @@ const Notify = () => {
                   <label className="text-xs font-body text-muted-foreground">To</label>
                   <Select value={to} onValueChange={setTo}>
                     <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Everywhere" />
+                      <SelectValue placeholder="Choose destination" />
                     </SelectTrigger>
                     <SelectContent>
-                      {toOptions.map((o) => (
+                      {destinationOptions.map((o) => (
                         <SelectItem key={o.value} value={o.value}>
                           {o.label}
                         </SelectItem>
@@ -166,16 +232,30 @@ const Notify = () => {
                   />
                 </div>
 
+                <div>
+                  <label className="text-xs font-body text-muted-foreground">
+                    WhatsApp phone number
+                  </label>
+                  <Input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)}
+                    className="mt-1 placeholder:text-muted-foreground"
+                    placeholder="+447700900123"
+                  />
+                </div>
+
                 <label className="flex items-start gap-2 text-xs font-body">
                   <Checkbox checked={consent} onCheckedChange={(c: boolean) => setConsent(c === true)} className="mt-0.5" />
-                  consent..
+                  I agree to receive deal notifications for this route.
                 </label>
 
                 <Button
-                  disabled={!consent}
+                  disabled={!consent || isSubmitting}
+                  onClick={handleSubmit}
                   className="w-full bg-primary/20 text-primary hover:bg-primary/30 font-body border border-primary/30 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  Submit
+                  {isSubmitting ? "Saving..." : "Submit"}
                 </Button>
               </div>
             </div>
