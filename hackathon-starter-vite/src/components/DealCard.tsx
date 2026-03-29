@@ -28,6 +28,12 @@ interface DealCardProps {
   duration?: string;
 }
 
+const originCities: Record<string, string> = {
+  EDI: 'Edinburgh',
+  LHR: 'London',
+  MAN: 'Manchester',
+};
+
 const buildGoogleFlightsUrl = (originCode: string, destinationCode: string, departureDate: string) => {
   const q = `flights from ${originCode} to ${destinationCode} on ${departureDate}`;
   return `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}`;
@@ -86,10 +92,10 @@ const DealCard = ({ name, country, price, originalPrice, discount, image, cabinC
         {/* Route + duration */}
         <div className="flex items-center justify-between text-sm font-body mb-1">
           <span className="font-semibold text-foreground tracking-wide">
-            {originCode} → {destinationCode}
+            {originCode} ({originCities[originCode] ?? originCode}) → {destinationCode} ({name})
           </span>
           {duration && (
-            <span className="text-xs text-muted-foreground">{formatDuration(duration)}</span>
+            <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">{formatDuration(duration)}</span>
           )}
         </div>
 
