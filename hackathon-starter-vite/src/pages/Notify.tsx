@@ -216,22 +216,22 @@ const Notify = () => {
             : "opacity-0 max-h-0 -translate-y-4 overflow-hidden pointer-events-none"
         }`}
       >
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-4xl">
           {/* Connecting line from hero */}
           <div className="flex justify-center mb-6">
             <div className="w-px h-10 bg-gradient-to-b from-primary/40 to-transparent" />
           </div>
 
-          <div className="bg-card rounded-2xl p-10 shadow-lg border border-border">
-            <h2 className="font-heading text-sm tracking-widest text-muted-foreground uppercase mb-6">
+          <div className="bg-card rounded-2xl p-12 shadow-lg border border-border">
+            <h2 className="font-heading text-base tracking-widest text-muted-foreground uppercase mb-8">
               Set up your alert
             </h2>
 
             <FlightClassSelector selected={flightClass} onChange={setFlightClass} />
 
-            <div className="mt-6 grid grid-cols-2 gap-5">
+            <div className="mt-8 grid grid-cols-2 gap-6">
               <div>
-                <label className="text-xs font-body text-muted-foreground">
+                <label className="text-sm font-body text-muted-foreground">
                   From<span className="text-accent">*</span>
                 </label>
                 <Select value={from} onValueChange={setFrom}>
@@ -249,7 +249,7 @@ const Notify = () => {
               </div>
 
               <div>
-                <label className="text-xs font-body text-muted-foreground">To</label>
+                <label className="text-sm font-body text-muted-foreground">To</label>
                 <Select value={to} onValueChange={setTo}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Everywhere" />
@@ -265,7 +265,7 @@ const Notify = () => {
               </div>
 
               <div className="col-span-2">
-                <label className="text-xs font-body text-muted-foreground">
+                <label className="text-sm font-body text-muted-foreground">
                   Depart within
                 </label>
                 <div className="flex gap-2 mt-1">
@@ -294,7 +294,7 @@ const Notify = () => {
 
             <div className="mt-8 space-y-5">
               <div>
-                <label className="text-xs font-body text-muted-foreground">Email</label>
+                <label className="text-sm font-body text-muted-foreground">Email</label>
                 <Input
                   type="email"
                   value={email}
@@ -304,7 +304,7 @@ const Notify = () => {
                 />
               </div>
 
-              <label className="flex items-start gap-2 text-xs font-body text-muted-foreground cursor-pointer">
+              <label className="flex items-start gap-2 text-sm font-body text-muted-foreground cursor-pointer">
                 <Checkbox
                   checked={consent}
                   onCheckedChange={(c: boolean) => setConsent(c === true)}
