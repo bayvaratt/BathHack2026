@@ -51,7 +51,7 @@ const SearchForm = () => {
   };
 
   return (
-    <div className="bg-popover rounded-lg p-[clamp(1rem,2vw,2rem)] shadow-md w-[90%] max-w-[1200px] mx-auto">
+    <div className="bg-popover rounded-lg p-[clamp(1.2rem,2.5vw,2.5rem)] shadow-md w-full mx-auto">
       {/* Flight class checkboxes - compact, not full width */}
       <div className="mb-4">
         <FlightClassSelector selected={flightClass} onChange={setFlightClass} />

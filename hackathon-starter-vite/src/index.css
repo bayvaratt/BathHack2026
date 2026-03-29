@@ -95,10 +95,6 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  html {
-    font-size: clamp(14px, 1.1vw, 18px);
-  }
-
   body {
     @apply bg-background text-foreground;
   }
