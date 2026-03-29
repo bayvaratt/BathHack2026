@@ -192,7 +192,7 @@ const Notify = () => {
     setShowSetup(true);
     setTimeout(() => {
       formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+    }, 550);
   };
 
   const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -249,8 +249,12 @@ const Notify = () => {
       <div className="absolute inset-0 z-0">
         <FlightMapBackground />
       </div>
-      {/* Soft dark veil over the whole page */}
-      <div className="absolute inset-0 z-0 bg-background/75" />
+      {/* Soft dark veil */}
+      <div className="absolute inset-0 z-0 bg-background/80" />
+      {/* Gentle primary glow at top */}
+      <div className="absolute inset-x-0 top-0 h-64 z-[1] pointer-events-none bg-gradient-to-b from-primary/15 to-transparent" />
+      {/* Fade hero into form */}
+      <div className="absolute inset-x-0 z-[1] pointer-events-none" style={{ top: "60vh", height: "12rem", background: "linear-gradient(to bottom, transparent, hsl(var(--background) / 0.5))" }} />
 
       <Navbar hideCurrency />
 
