@@ -14,7 +14,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 const ORIGINS = ['EDI', 'LHR', 'MAN']
 const DESTINATIONS = ['AMS', 'ATH', 'BCN', 'BKK', 'CDG', 'DXB', 'FCO', 'JFK', 'LIS', 'MAD', 'NRT', 'PVG', 'SIN', 'SYD']
 const CABIN_CLASSES = ['economy', 'premium_economy', 'business', 'first']
-const DEAL_THRESHOLD = 0.1
+const DEAL_THRESHOLD = 0.3
 
 const departureDate = new Date()
 departureDate.setDate(departureDate.getDate() + 30)
@@ -25,6 +25,10 @@ console.log(`Origins: ${ORIGINS.join(', ')}`)
 console.log(`Destinations: ${DESTINATIONS.join(', ')}`)
 console.log(`Cabin classes: ${CABIN_CLASSES.join(', ')}\n`)
 
+// Clear previous deals and notifications
+await supabase.from('notifications').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+await supabase.from('deals').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+
 let pricesSaved = 0
 let dealsSaved = 0
 const errors = []
@@ -33,6 +37,7 @@ for (const origin of ORIGINS) {
   for (const dest of DESTINATIONS) {
     for (const cabinClass of CABIN_CLASSES) {
       try {
+        await new Promise(r => setTimeout(r, 500))
         process.stdout.write(`Fetching ${origin} → ${dest} [${cabinClass}]... `)
 
         const offerRequest = await duffel.offerRequests.create({

@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { ORIGINS, DESTINATIONS } from '@/lib/destinations'
 
 const CABIN_CLASSES = ['economy', 'premium_economy', 'business', 'first'] as const
-const DEAL_THRESHOLD = 0.1
+const DEAL_THRESHOLD = 0.3
 const DAYS_AHEAD = 30
 
 export async function GET(request: Request) {
@@ -19,6 +19,10 @@ export async function GET(request: Request) {
   departureDate.setDate(departureDate.getDate() + DAYS_AHEAD)
   const date = departureDate.toISOString().split('T')[0]
 
+  // Clear all previous deals at the start of each run
+  await supabase.from('notifications').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+  await supabase.from('deals').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+
   const errors: string[] = []
   let pricesSaved = 0
   let dealsFound = 0
@@ -27,6 +31,7 @@ export async function GET(request: Request) {
     for (const dest of DESTINATIONS) {
       for (const cabinClass of CABIN_CLASSES) {
         try {
+          await new Promise(r => setTimeout(r, 500))
           const offerRequest = await duffel.offerRequests.create({
             slices: [{ origin: origin.code, destination: dest.code, departure_date: date, arrival_time: null, departure_time: null }],
             passengers: [{ type: 'adult' }],
