@@ -1,6 +1,7 @@
 import { duffel } from '@/lib/duffel'
 import { supabase } from '@/lib/supabase'
 import { ORIGINS, DESTINATIONS } from '@/lib/destinations'
+import { sendNotificationsForDeal } from '@/lib/notifications'
 
 const CABIN_CLASSES = ['economy', 'premium_economy', 'business', 'first'] as const
 const DEAL_THRESHOLD = 0.3
@@ -28,6 +29,8 @@ export async function GET(request: Request) {
   const errors: string[] = []
   let pricesSaved = 0
   let dealsFound = 0
+  let emailsSent = 0
+  let whatsappSent = 0
 
   for (const origin of ORIGINS) {
     for (const dest of DESTINATIONS) {
@@ -162,6 +165,24 @@ export async function GET(request: Request) {
                     await supabase.from('notifications').insert(
                       prefs.map((p) => ({ subscriber_id: p.subscriber_id, deal_id: deal.id }))
                     )
+
+                    const sendResult = await sendNotificationsForDeal(
+                      {
+                        id: deal.id,
+                        origin: origin.code,
+                        destination: dest.code,
+                        cabin_class: cabinClass,
+                        airline: price.airline,
+                        departure_date: price.departure_date,
+                        new_price: price.price_amount,
+                        currency: price.price_currency,
+                        discount_percent: Math.round(discountPct * 100),
+                      },
+                      prefs.map((p) => p.subscriber_id),
+                    )
+
+                    emailsSent += sendResult.emailsSent
+                    whatsappSent += sendResult.whatsappSent
                   }
                 }
               }
@@ -181,6 +202,8 @@ export async function GET(request: Request) {
     checked_at: new Date().toISOString(),
     prices_saved: pricesSaved,
     deals_found: dealsFound,
+    emails_sent: emailsSent,
+    whatsapp_sent: whatsappSent,
     errors,
   })
 }
