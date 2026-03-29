@@ -201,6 +201,7 @@ const Notify = () => {
   const handleSubmit = async () => {
     const nextErrors: Record<string, string> = {};
     if (!from) nextErrors.from = "Required — please select a departure airport.";
+    if (!within) nextErrors.within = "Required — enter how far ahead to search.";
     if (!email && !phoneNumber) {
       nextErrors.email = "Please enter an email address.";
       nextErrors.phone = "Or enter a WhatsApp number.";
@@ -342,14 +343,16 @@ const Notify = () => {
 
               {/* Depart within */}
               <div className="col-span-2 flex flex-col">
-                <label className="text-sm font-body text-muted-foreground mb-1">Depart within</label>
+                <label className={`text-sm font-body mb-1 ${errors.within ? "text-destructive" : "text-muted-foreground"}`}>
+                  Depart within<span className="text-accent ml-0.5">*</span>
+                </label>
                 <div className="flex gap-2">
                   <Input
                     placeholder="e.g. 3"
                     value={within}
-                    onChange={handleWithinChange}
+                    onChange={(e) => { handleWithinChange(e); setErrors((err) => ({ ...err, within: "" })); }}
                     inputMode="numeric"
-                    className="flex-1"
+                    className={`flex-1 ${errors.within ? "border-destructive focus-visible:ring-destructive" : ""}`}
                   />
                   <Select value={unit} onValueChange={setUnit}>
                     <SelectTrigger className="w-32">
@@ -362,6 +365,7 @@ const Notify = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <p className="text-xs text-destructive mt-1 min-h-[1rem]">{errors.within ?? ""}</p>
               </div>
             </div>
 
