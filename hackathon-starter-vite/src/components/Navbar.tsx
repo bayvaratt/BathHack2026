@@ -16,7 +16,7 @@ const Navbar = ({ hideCurrency = false }: { hideCurrency?: boolean }) => {
   const isActive = (path: string) => location.pathname === path || (path === "/notify" && location.pathname.startsWith("/notify"));
 
   return (
-    <nav className="bg-gradient-to-r from-[hsl(var(--header-gradient-from))] to-[hsl(var(--header-gradient-to))] px-[4vw] py-[1.8vw] relative flex items-center">
+    <nav className="bg-[hsl(var(--navbar-bg))] px-[4vw] py-[1.8vw] relative flex items-center">
       {/* Logo — left */}
       <Link to="/" className="font-poppins font-extrabold text-[clamp(1.4rem,2.2vw,2.4rem)] tracking-tight text-primary-foreground flex-shrink-0">
         <span className="text-white">B</span>estination
