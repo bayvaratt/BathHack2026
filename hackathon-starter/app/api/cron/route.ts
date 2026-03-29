@@ -5,8 +5,9 @@ import { supabase } from '@/lib/supabase'
 
 const CABIN_CLASSES = ['economy', 'premium_economy', 'business', 'first'] as const
 const DEAL_THRESHOLD = 0.3
-const DAYS_AHEAD = 30
 const BATCH_SIZE = 10
+// Rotate through 4 dates spread across next month — each run picks a different one
+const DATE_OFFSETS = [7, 14, 21, 28]
 
 export const maxDuration = 60
 
@@ -19,8 +20,11 @@ export async function GET(request: Request) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  // Pick date offset based on current day of month so each run uses a different date
+  const dayOfMonth = new Date().getDate()
+  const daysAhead = DATE_OFFSETS[dayOfMonth % DATE_OFFSETS.length]
   const departureDate = new Date()
-  departureDate.setDate(departureDate.getDate() + DAYS_AHEAD)
+  departureDate.setDate(departureDate.getDate() + daysAhead)
   const date = departureDate.toISOString().split('T')[0]
 
   await supabase.from('notifications').delete().neq('id', '00000000-0000-0000-0000-000000000000')
@@ -252,6 +256,7 @@ export async function GET(request: Request) {
 
   return Response.json({
     date,
+    days_ahead: daysAhead,
     checked_at: new Date().toISOString(),
     prices_saved: pricesSaved,
     deals_found: dealsFound,
