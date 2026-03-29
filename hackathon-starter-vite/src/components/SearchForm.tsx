@@ -51,25 +51,25 @@ const SearchForm = () => {
   };
 
   return (
-    <div className="bg-popover rounded-lg p-[clamp(1rem,2vw,2rem)] shadow-md w-[90%] max-w-[1200px] mx-auto">
+    <div className="bg-popover rounded-lg p-8 shadow-md w-full mx-auto">
       {/* Flight class checkboxes - compact, not full width */}
-      <div className="mb-4">
+      <div className="mb-6">
         <FlightClassSelector selected={flightClass} onChange={setFlightClass} />
       </div>
 
       {/* Labels */}
-      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1.2fr_auto] gap-x-3 gap-y-1 mb-1">
-        <span className="text-xs font-body text-muted-foreground">From<span className="text-accent">*</span></span>
-        <span className="text-xs font-body text-muted-foreground hidden sm:block">To</span>
-        <span className="text-xs font-body text-muted-foreground hidden sm:block">Within</span>
-        <span className="w-[100px] hidden sm:block" />
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1.2fr_auto] gap-x-4 gap-y-1 mb-2">
+        <span className="text-base font-body text-muted-foreground">From<span className="text-accent">*</span></span>
+        <span className="text-base font-body text-muted-foreground hidden sm:block">To</span>
+        <span className="text-base font-body text-muted-foreground hidden sm:block">Within</span>
+        <span className="w-[140px] hidden sm:block" />
       </div>
 
       {/* Inputs row */}
-      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1.2fr_auto] gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1.2fr_auto] gap-4">
         {/* From */}
         <Select value={from} onValueChange={setFrom}>
-          <SelectTrigger className="h-[clamp(2.2rem,3vw,3rem)] text-[clamp(0.75rem,0.9vw,1rem)]">
+            <SelectTrigger className="h-12 text-base">
             <SelectValue placeholder="Enter location" />
           </SelectTrigger>
           <SelectContent>
@@ -81,7 +81,7 @@ const SearchForm = () => {
 
         {/* To */}
         <Select value={to} onValueChange={setTo}>
-          <SelectTrigger className="h-[clamp(2.2rem,3vw,3rem)] text-[clamp(0.75rem,0.9vw,1rem)]">
+          <SelectTrigger className="h-12 text-base">
               <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -92,9 +92,9 @@ const SearchForm = () => {
         </Select>
 
         {/* Within - connected number + unit */}
-        <div className="flex h-[clamp(2.2rem,3vw,3rem)] rounded-md border border-input overflow-hidden">
+        <div className="flex h-12 rounded-md border border-input overflow-hidden">
           <Input
-            className="h-full text-[clamp(0.75rem,0.9vw,1rem)] flex-1 min-w-0 border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="h-full text-base flex-1 min-w-0 border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
             placeholder="Enter number"
             value={within}
             onChange={handleWithinChange}
@@ -102,7 +102,7 @@ const SearchForm = () => {
           />
           <div className="w-px bg-border" />
           <Select value={unit} onValueChange={setUnit}>
-            <SelectTrigger className="h-full text-[clamp(0.75rem,0.9vw,1rem)] w-24 border-0 rounded-none focus:ring-0 focus:ring-offset-0">
+            <SelectTrigger className="h-full text-base w-28 border-0 rounded-none focus:ring-0 focus:ring-offset-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -115,7 +115,7 @@ const SearchForm = () => {
 
         {/* Search button */}
         <Button
-          className="h-[clamp(2.2rem,3vw,3rem)] bg-foreground text-background hover:bg-foreground/90 font-body text-[clamp(0.75rem,0.9vw,1rem)] px-[clamp(1rem,2vw,2rem)]"
+          className="h-12 bg-foreground text-background hover:bg-foreground/90 font-body text-base px-8"
           onClick={handleSearch}
         >
           SEARCH
