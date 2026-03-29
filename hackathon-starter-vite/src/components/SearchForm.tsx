@@ -24,16 +24,24 @@ const toOptions = [
 const durationUnits = ["days", "weeks", "months", "years"];
 
 const fieldLabel = "text-[11px] font-semibold font-body text-muted-foreground uppercase tracking-wide mb-0.5";
-const selectTriggerClass = "border-0 shadow-none h-auto p-0 text-sm font-body font-medium text-muted-foreground placeholder:text-muted-foreground focus:ring-0 focus-visible:ring-0";
+const baseTrigger = "border-0 shadow-none h-auto p-0 text-sm font-body font-medium placeholder:text-muted-foreground focus:ring-0 focus-visible:ring-0";
+const grey = "text-muted-foreground";
+const black = "text-foreground";
+const selectTriggerClass = `${baseTrigger} ${grey}`;
 
-const SearchForm = () => {
+interface SearchFormProps {
+  flightClass: FlightClass;
+  setFlightClass: (cls: FlightClass) => void;
+}
+
+const SearchForm = ({ flightClass, setFlightClass }: SearchFormProps) => {
   const navigate = useNavigate();
   const { origins } = useOrigins();
-  const [flightClass, setFlightClass] = useState<FlightClass>("Economy");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("everywhere");
   const [within, setWithin] = useState("");
   const [unit, setUnit] = useState("days");
+  const [unitChanged, setUnitChanged] = useState(false);
 
   const handleWithinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -58,7 +66,7 @@ const SearchForm = () => {
         <div className="flex-1 px-5 py-3.5 min-w-0">
           <p className={fieldLabel}>From <span className="text-accent normal-case tracking-normal">*</span></p>
           <Select value={from} onValueChange={setFrom}>
-            <SelectTrigger className={selectTriggerClass}>
+            <SelectTrigger className={`${baseTrigger} ${from && from !== "anywhere" ? black : grey}`}>
               <SelectValue placeholder="Country, city or airport" />
             </SelectTrigger>
             <SelectContent>
@@ -79,7 +87,7 @@ const SearchForm = () => {
         <div className="flex-1 px-5 py-3.5 min-w-0">
           <p className={fieldLabel}>To</p>
           <Select value={to} onValueChange={setTo}>
-            <SelectTrigger className={selectTriggerClass}>
+            <SelectTrigger className={`${baseTrigger} ${to !== "everywhere" ? black : grey}`}>
               <SelectValue placeholder="Everywhere" />
             </SelectTrigger>
             <SelectContent>
@@ -104,8 +112,8 @@ const SearchForm = () => {
               onChange={handleWithinChange}
               inputMode="numeric"
             />
-            <Select value={unit} onValueChange={setUnit}>
-              <SelectTrigger className={selectTriggerClass + " w-24"}>
+            <Select value={unit} onValueChange={(v) => { setUnit(v); setUnitChanged(true); }}>
+              <SelectTrigger className={`${baseTrigger} w-24 ${unitChanged ? black : grey}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

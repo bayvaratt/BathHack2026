@@ -20,9 +20,14 @@ interface DealSectionProps {
 const DealSection = ({ region, deals }: DealSectionProps) => {
   return (
     <div className="mb-[3vw]">
-      <h2 className="font-body text-[clamp(1.5rem,2.2vw,2.5rem)] font-normal mb-[1.5vw]">
-        <span className="text-accent font-bold">HOT</span> deals for {region} 🔥
-      </h2>
+      <div className="flex items-baseline gap-3 mb-[1.5vw]">
+        <h2 className="font-poppins font-bold text-[clamp(1.2rem,1.8vw,2rem)] text-foreground">
+          {region}
+        </h2>
+        <span className="font-poppins font-semibold text-[clamp(0.75rem,1vw,1rem)] text-accent uppercase tracking-widest">
+          🔥 Hot deals
+        </span>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-[clamp(0.8rem,1.5vw,1.5rem)]">
         {deals.map((deal, i) => (
           <DealCard

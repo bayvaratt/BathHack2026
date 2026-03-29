@@ -26,6 +26,7 @@ const toOptions = [
 const durationUnits = ["days", "weeks", "months", "years"];
 
 const cabinClassMap: Record<FlightClass, string> = {
+  All: "economy", // Notify always requires a specific class; default to economy if somehow "All" is picked
   Economy: "economy",
   "Premium Economy": "premium_economy",
   Business: "business",

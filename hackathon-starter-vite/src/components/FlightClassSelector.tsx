@@ -1,4 +1,4 @@
-const flightClasses = ["Economy", "Premium Economy", "Business", "First"] as const;
+const flightClasses = ["All", "Economy", "Premium Economy", "Business", "First"] as const;
 type FlightClass = (typeof flightClasses)[number];
 
 interface FlightClassSelectorProps {

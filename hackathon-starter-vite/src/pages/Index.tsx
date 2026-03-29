@@ -1,12 +1,15 @@
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import SearchForm from "@/components/SearchForm";
 import DealSection from "@/components/DealSection";
 import { useDeals } from "@/hooks/useDeals";
 import { getDestinationImage } from "@/lib/destinationImages";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { type FlightClass } from "@/components/FlightClassSelector";
 
 const Index = () => {
-  const { dealsByRegion, loading } = useDeals();
+  const [flightClass, setFlightClass] = useState<FlightClass>("All");
+  const { dealsByRegion, loading } = useDeals(flightClass);
   const { convert } = useCurrency();
 
   return (
@@ -24,7 +27,7 @@ const Index = () => {
             We track prices 24/7 and notify you when fares drop.
           </p>
         </div>
-        <SearchForm />
+        <SearchForm flightClass={flightClass} setFlightClass={setFlightClass} />
       </div>
 
       {/* Deal sections */}
