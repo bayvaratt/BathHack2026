@@ -27,6 +27,12 @@ type SubscriberRecord = {
   phone_number: string | null
 }
 
+type DeliveryRecord = {
+  subscriberId: string
+  emailSent: boolean
+  whatsappSent: boolean
+}
+
 function formatDepartureDate(date: string) {
   return new Intl.DateTimeFormat('en-GB', {
     day: 'numeric',
@@ -272,7 +278,7 @@ export async function sendNotificationsForDeal(
   subscriberIds: string[],
 ) {
   if (subscriberIds.length === 0) {
-    return { emailsSent: 0, whatsappSent: 0 }
+    return { emailsSent: 0, whatsappSent: 0, deliveries: [] as DeliveryRecord[] }
   }
 
   const { data: subscribers, error } = await supabase
@@ -288,8 +294,12 @@ export async function sendNotificationsForDeal(
 
   let emailsSent = 0
   let whatsappSent = 0
+  const deliveries: DeliveryRecord[] = []
 
   for (const subscriber of (subscribers ?? []) as SubscriberRecord[]) {
+    let emailSent = false
+    let whatsappSentForSubscriber = false
+
     if (subscriber.email) {
       try {
         await sendRecommendationEmail({
@@ -298,6 +308,7 @@ export async function sendNotificationsForDeal(
           html: buildEmailHTML([enrichedDeal]),
         })
         emailsSent++
+        emailSent = true
       } catch (error) {
         console.error('Email notification failed', {
           subscriberId: subscriber.id,
@@ -313,6 +324,7 @@ export async function sendNotificationsForDeal(
           body: buildWhatsAppMessage([enrichedDeal]),
         })
         whatsappSent++
+        whatsappSentForSubscriber = true
       } catch (error) {
         console.error('WhatsApp notification failed', {
           subscriberId: subscriber.id,
@@ -321,7 +333,13 @@ export async function sendNotificationsForDeal(
         })
       }
     }
+
+    deliveries.push({
+      subscriberId: subscriber.id,
+      emailSent,
+      whatsappSent: whatsappSentForSubscriber,
+    })
   }
 
-  return { emailsSent, whatsappSent }
+  return { emailsSent, whatsappSent, deliveries }
 }

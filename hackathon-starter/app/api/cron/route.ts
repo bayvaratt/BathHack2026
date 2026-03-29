@@ -220,13 +220,6 @@ export async function GET(request: Request) {
                 )
 
                 if (matchingPrefs.length > 0) {
-                  await supabase.from('notifications').insert(
-                    matchingPrefs.map((pref) => ({
-                      subscriber_id: pref.subscriber_id,
-                      deal_id: deal.id,
-                    })),
-                  )
-
                   const sendResult = await sendNotificationsForDeal(
                     {
                       id: deal.id,
@@ -241,6 +234,21 @@ export async function GET(request: Request) {
                     },
                     matchingPrefs.map((pref) => pref.subscriber_id),
                   )
+
+                  const deliveredSubscriberIds = sendResult.deliveries
+                    .filter(
+                      (delivery) => delivery.emailSent || delivery.whatsappSent,
+                    )
+                    .map((delivery) => delivery.subscriberId)
+
+                  if (deliveredSubscriberIds.length > 0) {
+                    await supabase.from('notifications').insert(
+                      deliveredSubscriberIds.map((subscriberId) => ({
+                        subscriber_id: subscriberId,
+                        deal_id: deal.id,
+                      })),
+                    )
+                  }
 
                   batchEmailsSent += sendResult.emailsSent
                   batchWhatsappSent += sendResult.whatsappSent
