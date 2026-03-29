@@ -24,7 +24,7 @@ const toOptions = [
 const durationUnits = ["days", "weeks", "months", "years"];
 
 const fieldLabel = "text-[11px] font-semibold font-body text-muted-foreground uppercase tracking-wide mb-0.5";
-const selectTriggerClass = "border-0 shadow-none h-auto p-0 text-sm font-body font-medium text-foreground placeholder:text-muted-foreground focus:ring-0 focus-visible:ring-0";
+const selectTriggerClass = "border-0 shadow-none h-auto p-0 text-sm font-body font-medium text-muted-foreground placeholder:text-muted-foreground focus:ring-0 focus-visible:ring-0";
 
 const SearchForm = () => {
   const navigate = useNavigate();

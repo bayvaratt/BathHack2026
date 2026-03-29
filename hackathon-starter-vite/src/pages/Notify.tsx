@@ -107,11 +107,11 @@ const Notify = () => {
           {/* Intro view */}
           <div className={introClass}>
             <div className="text-center max-w-md">
-              <h1 className="font-body text-3xl font-normal text-foreground leading-tight mb-2">
-                Track prices. Catch deals. Get notified.
+              <h1 className="font-poppins font-bold text-3xl text-foreground leading-tight mb-2">
+                Track prices. Catch deals.<br />Get notified.
               </h1>
-              <p className="font-body text-xl text-foreground mb-8">
-                Our agent <em className="text-primary font-bold">works</em> 24/7
+              <p className="font-body text-base text-muted-foreground mb-8">
+                Our AI agent <span className="text-primary font-semibold">works 24/7</span> so you never miss a deal.
               </p>
               <Button
                 className="bg-primary text-primary-foreground hover:bg-primary/90 font-heading tracking-wider text-sm px-10 py-5 rounded-full"
@@ -131,8 +131,9 @@ const Notify = () => {
               <ArrowLeft className="h-5 w-5" />
             </button>
 
-            <div className="bg-popover rounded-lg p-6 shadow-sm border border-border">
-              <FlightClassSelector selected={flightClass} onChange={setFlightClass} />
+            <div className="bg-popover rounded-2xl p-6 shadow-lg border border-border">
+              <h2 className="font-poppins font-bold text-lg text-foreground mb-4">Set up your alert</h2>
+              <FlightClassSelector selected={flightClass} onChange={setFlightClass} variant="light" />
 
               <div className="mt-5 grid grid-cols-2 gap-4">
                 <div>
@@ -207,9 +208,9 @@ const Notify = () => {
                   />
                 </div>
 
-                <label className="flex items-start gap-2 text-xs font-body">
+                <label className="flex items-start gap-2 text-xs font-body text-muted-foreground cursor-pointer">
                   <Checkbox checked={consent} onCheckedChange={(c: boolean) => setConsent(c === true)} className="mt-0.5" />
-                  consent..
+                  I agree to receive flight deal notifications to my email. I can unsubscribe at any time.
                 </label>
 
                 {submitted ? (
@@ -220,9 +221,9 @@ const Notify = () => {
                   <Button
                     disabled={!consent || !email || !from || submitting}
                     onClick={handleSubmit}
-                    className="w-full bg-primary/20 text-primary hover:bg-primary/30 font-body border border-primary/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-poppins font-bold rounded-xl py-5 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    {submitting ? "Saving..." : "Submit"}
+                    {submitting ? "Setting up your alert..." : "Notify Me 🔔"}
                   </Button>
                 )}
               </div>
