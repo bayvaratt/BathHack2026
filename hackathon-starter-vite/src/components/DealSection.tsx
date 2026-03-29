@@ -14,6 +14,9 @@ interface Deal {
   originCode: string;
   destinationCode: string;
   duration?: string;
+  rawPrice: number;
+  rawAvgPrice: number;
+  discountPct: number;
 }
 
 interface DealSectionProps {
@@ -49,6 +52,9 @@ const DealSection = ({ region, deals }: DealSectionProps) => {
             originCode={deal.originCode}
             destinationCode={deal.destinationCode}
             duration={deal.duration}
+            rawPrice={deal.rawPrice}
+            rawAvgPrice={deal.rawAvgPrice}
+            discountPct={deal.discountPct}
           />
         ))}
       </div>

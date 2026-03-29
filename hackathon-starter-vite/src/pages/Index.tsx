@@ -39,12 +39,12 @@ const Index = () => {
         ) : (
           Object.entries(dealsByRegion).map(([region, deals]) => {
             const mapped = deals.map((d) => {
-              const originalPrice = Math.round(d.new_price / (1 - d.discount_percent / 100));
+              const rawAvgPrice = Math.round(d.new_price / (1 - d.discount_percent / 100));
               return {
                 name: d.destinations?.city ?? d.destination,
                 country: d.destinations?.country ?? "",
                 price: convert(d.new_price),
-                originalPrice: convert(originalPrice),
+                originalPrice: convert(rawAvgPrice),
                 discount: `${Math.round(d.discount_percent)}% off!`,
                 image: getDestinationImage(d.destination),
                 cabinClass: d.cabin_class,
@@ -54,6 +54,9 @@ const Index = () => {
                 originCode: d.origin,
                 destinationCode: d.destination,
                 duration: d.duration,
+                rawPrice: d.new_price,
+                rawAvgPrice,
+                discountPct: Math.round(d.discount_percent),
               };
             });
             return <DealSection key={region} region={region} deals={mapped} />;
