@@ -261,7 +261,8 @@ export async function GET(request: Request) {
         whatsappSent += result.value.whatsappSent
       } else {
         const { origin, dest, cabinClass } = batch[j]
-        errors.push(`${origin.code}-${dest.code}-${cabinClass}`)
+        const reason = result.reason instanceof Error ? result.reason.message : String(result.reason)
+        errors.push(`${origin.code}-${dest.code}-${cabinClass}: ${reason}`)
       }
     }
   }
