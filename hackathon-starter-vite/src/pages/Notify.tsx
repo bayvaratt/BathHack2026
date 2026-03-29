@@ -244,53 +244,43 @@ const Notify = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="relative min-h-screen bg-background flex flex-col overflow-hidden">
+      {/* Flight map spans the full page */}
+      <div className="absolute inset-0 z-0">
+        <FlightMapBackground />
+      </div>
+      {/* Soft dark veil over the whole page */}
+      <div className="absolute inset-0 z-0 bg-background/75" />
+
       <Navbar hideCurrency />
 
-      <div
-        className="relative flex flex-col items-center justify-center overflow-hidden"
-        style={{ minHeight: "80vh" }}
-      >
-        <FlightMapBackground />
-
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 55% 50% at 50% 50%, hsl(var(--background)) 30%, transparent 80%)",
-          }}
-        />
-
-        <div className="absolute top-0 inset-x-0 h-48 bg-gradient-to-b from-background to-transparent" />
-        <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-background to-transparent" />
-
-        <div className="relative z-10 text-center max-w-2xl px-6 py-20">
-          <div className="inline-block mb-6 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-heading tracking-widest text-primary uppercase">
-            Flight Deal Monitor
-          </div>
-          <h1 className="font-body text-6xl font-normal leading-tight text-foreground mb-4">
-            Track prices.
-            <br />
-            Catch deals.
-            <br />
-            <span className="font-semibold text-primary">Get notified.</span>
-          </h1>
-          <p className="font-body text-lg text-muted-foreground mb-10">
-            Our agent monitors 200+ destinations 24/7 and alerts you the moment prices drop.
-          </p>
-
-          <Button
-            className="rounded-full bg-primary px-10 py-5 text-sm font-heading tracking-wider text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:bg-primary/90"
-            onClick={handleNotifyClick}
-          >
-            NOTIFY ME
-          </Button>
+      {/* Hero */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-28">
+        <div className="inline-block mb-6 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-heading tracking-widest text-primary uppercase">
+          Flight Deal Monitor
         </div>
+        <h1 className="font-body text-6xl font-normal leading-tight text-foreground mb-4">
+          Track prices.
+          <br />
+          Catch deals.
+          <br />
+          <span className="font-semibold text-primary">Get notified.</span>
+        </h1>
+        <p className="font-body text-lg text-muted-foreground mb-10">
+          Our agent monitors 200+ destinations 24/7 and alerts you the moment prices drop.
+        </p>
+
+        <Button
+          className="rounded-full bg-primary px-10 py-5 text-sm font-heading tracking-wider text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:bg-primary/90"
+          onClick={handleNotifyClick}
+        >
+          NOTIFY ME
+        </Button>
       </div>
 
       <div
         ref={formRef}
-        className={`w-full px-4 pb-16 transition-all duration-500 ease-in-out ${
+        className={`relative z-10 w-full px-4 pb-20 transition-all duration-500 ease-in-out ${
           showSetup
             ? "pointer-events-auto max-h-[1000px] translate-y-0 opacity-100"
             : "pointer-events-none max-h-0 -translate-y-4 overflow-hidden opacity-0"
@@ -301,7 +291,7 @@ const Notify = () => {
             <div className="w-px h-10 bg-gradient-to-b from-primary/40 to-transparent" />
           </div>
 
-          <div className="bg-card rounded-2xl p-12 shadow-lg border border-border">
+          <div className="rounded-2xl p-12 shadow-2xl border border-primary/10 bg-background/60 backdrop-blur-xl">
             <h2 className="font-heading text-base tracking-widest text-muted-foreground uppercase mb-8">
               Set up your alert
             </h2>
