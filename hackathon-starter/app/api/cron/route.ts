@@ -2,7 +2,7 @@ import { duffel } from '@/lib/duffel'
 import { supabase } from '@/lib/supabase'
 import { ORIGINS, DESTINATIONS } from '@/lib/destinations'
 
-const CABIN_CLASSES = ['economy', 'premium_economy', 'business', 'first'] as const
+const CABIN_CLASSES = ['economy'] as const
 const DEAL_THRESHOLD = 0.3
 const DAYS_AHEAD = 30
 
