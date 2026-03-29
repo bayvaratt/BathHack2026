@@ -16,16 +16,16 @@ const Navbar = ({ hideCurrency = false }: { hideCurrency?: boolean }) => {
   const isActive = (path: string) => location.pathname === path || (path === "/notify" && location.pathname.startsWith("/notify"));
 
   return (
-    <nav className="bg-gradient-to-r from-[hsl(var(--header-gradient-from))] to-[hsl(var(--header-gradient-to))] px-6 py-4 flex items-center">
-      <Link to="/" className="font-heading text-xl tracking-wider text-primary-foreground uppercase flex-shrink-0 w-[120px]">
+    <nav className="bg-gradient-to-r from-[hsl(var(--header-gradient-from))] to-[hsl(var(--header-gradient-to))] px-[4vw] py-[1.8vw] flex items-center">
+      <Link to="/" className="font-airone text-[clamp(1.3rem,2.2vw,2.2rem)] tracking-wider text-primary-foreground uppercase flex-shrink-0">
         Bestination
       </Link>
 
       {/* Nav links centered */}
-      <div className="flex-1 flex items-center justify-center gap-8">
+      <div className="flex-1 flex items-center justify-center gap-[4vw]">
         <Link
           to="/"
-          className={`text-sm font-body transition-colors ${
+          className={`text-[clamp(1rem,1.4vw,1.5rem)] font-body transition-colors ${
             isActive("/") ? "text-primary-foreground underline underline-offset-4" : "text-primary-foreground/80 hover:text-primary-foreground"
           }`}
         >
@@ -33,7 +33,7 @@ const Navbar = ({ hideCurrency = false }: { hideCurrency?: boolean }) => {
         </Link>
         <Link
           to="/notify"
-          className={`text-sm font-body transition-colors ${
+          className={`text-[clamp(1rem,1.4vw,1.5rem)] font-body transition-colors ${
             isActive("/notify") ? "text-primary-foreground underline underline-offset-4" : "text-primary-foreground/80 hover:text-primary-foreground"
           }`}
         >
@@ -41,12 +41,12 @@ const Navbar = ({ hideCurrency = false }: { hideCurrency?: boolean }) => {
         </Link>
       </div>
 
-      {/* Currency selector - same width as logo to balance centering */}
-      <div className="flex-shrink-0 w-[120px] flex justify-end">
+      {/* Currency selector */}
+      <div className="flex-shrink-0 flex justify-end">
       {!hideCurrency && (
       <DropdownMenu>
-        <DropdownMenuTrigger className="text-sm text-primary-foreground/90 hover:text-primary-foreground flex items-center gap-1 font-body">
-          {symbol} <span className="text-xs">▼</span>
+        <DropdownMenuTrigger className="text-[clamp(1rem,1.4vw,1.5rem)] text-primary-foreground/90 hover:text-primary-foreground flex items-center gap-2 font-body">
+          {symbol} <span className="text-[clamp(0.7rem,0.9vw,1rem)]">▼</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {currencies.map((c) => (
