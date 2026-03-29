@@ -30,12 +30,14 @@ const Index = () => {
               const originalPrice = Math.round(d.new_price / (1 - d.discount_percent / 100));
               return {
                 name: d.destinations?.city ?? d.destination,
-                priceGbp: d.new_price,
-                originalPriceGbp: originalPrice,
-                discount: `${Math.round(d.discount_percent)}% cheaper!`,
-                image: getDestinationImage(d.destination),
+                country: d.destinations?.country ?? "",
                 price: convert(d.new_price),
                 originalPrice: convert(originalPrice),
+                discount: `${Math.round(d.discount_percent)}% off!`,
+                image: getDestinationImage(d.destination),
+                cabinClass: d.cabin_class,
+                origin: d.origin,
+                airline: d.airline,
               };
             });
             return <DealSection key={region} region={region} deals={mapped} />;
