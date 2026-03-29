@@ -22,11 +22,24 @@ interface DealCardProps {
   cabinClass: string;
   origin: string;
   airline: string;
+  departureDate: string;
+  originCode: string;
+  destinationCode: string;
 }
 
-const DealCard = ({ name, country, price, originalPrice, discount, image, cabinClass, origin, airline }: DealCardProps) => {
+const buildGoogleFlightsUrl = (originCode: string, destinationCode: string, departureDate: string) => {
+  const q = `flights from ${originCode} to ${destinationCode} on ${departureDate}`;
+  return `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}`;
+};
+
+const DealCard = ({ name, country, price, originalPrice, discount, image, cabinClass, origin, airline, departureDate, originCode, destinationCode }: DealCardProps) => {
   return (
-    <div className="rounded-xl overflow-hidden cursor-pointer group bg-card border border-border shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+    <a
+      href={buildGoogleFlightsUrl(originCode, destinationCode, departureDate)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-xl overflow-hidden cursor-pointer group bg-card border border-border shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] block"
+    >
       {/* Image */}
       <div className="aspect-[16/9] w-full overflow-hidden relative">
         <img
@@ -75,7 +88,7 @@ const DealCard = ({ name, country, price, originalPrice, discount, image, cabinC
           </div>
         </div>
       </div>
-    </div>
+    </a>
   );
 };
 

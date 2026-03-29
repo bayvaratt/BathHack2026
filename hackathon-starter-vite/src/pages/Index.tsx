@@ -50,6 +50,9 @@ const Index = () => {
                 cabinClass: d.cabin_class,
                 origin: d.origin,
                 airline: d.airline,
+                departureDate: d.departure_date,
+                originCode: d.origin,
+                destinationCode: d.destination,
               };
             });
             return <DealSection key={region} region={region} deals={mapped} />;
