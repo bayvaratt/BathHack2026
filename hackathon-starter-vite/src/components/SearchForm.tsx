@@ -9,19 +9,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useOrigins } from "@/hooks/useOrigins";
 
 const toOptions = [
   { value: "everywhere", label: "Everywhere" },
-  { value: "europe", label: "Europe" },
-  { value: "asia", label: "Asia" },
-  { value: "americas", label: "Americas" },
-  { value: "africa", label: "Africa" },
-  { value: "oceania", label: "Oceania" },
+  { value: "Europe", label: "Europe" },
+  { value: "Asia Pacific", label: "Asia Pacific" },
+  { value: "Americas", label: "Americas" },
+  { value: "Middle East", label: "Middle East" },
 ];
 
 const durationUnits = ["days", "weeks", "months", "years"];
+
+const fieldLabel = "text-[11px] font-semibold font-body text-muted-foreground uppercase tracking-wide mb-0.5";
+const selectTriggerClass = "border-0 shadow-none h-auto p-0 text-sm font-body font-medium text-foreground placeholder:text-muted-foreground focus:ring-0 focus-visible:ring-0";
 
 const SearchForm = () => {
   const navigate = useNavigate();
@@ -34,9 +37,7 @@ const SearchForm = () => {
 
   const handleWithinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    if (val === "" || /^\d+$/.test(val)) {
-      setWithin(val);
-    }
+    if (val === "" || /^\d+$/.test(val)) setWithin(val);
   };
 
   const handleSearch = () => {
@@ -44,78 +45,88 @@ const SearchForm = () => {
   };
 
   return (
-    <div className="bg-popover rounded-lg p-8 shadow-md w-full mx-auto">
-      {/* Flight class checkboxes - compact, not full width */}
-      <div className="mb-6">
+    <div className="w-full mx-auto">
+      {/* Cabin class tabs */}
+      <div className="mb-4">
         <FlightClassSelector selected={flightClass} onChange={setFlightClass} />
       </div>
 
-      {/* Labels */}
-      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1.2fr_auto] gap-x-4 gap-y-1 mb-2">
-        <span className="text-base font-body text-muted-foreground">From<span className="text-accent">*</span></span>
-        <span className="text-base font-body text-muted-foreground hidden sm:block">To</span>
-        <span className="text-base font-body text-muted-foreground hidden sm:block">Within</span>
-        <span className="w-[140px] hidden sm:block" />
-      </div>
+      {/* Skyscanner-style unified search bar */}
+      <div className="flex items-stretch bg-white rounded-2xl shadow-xl overflow-hidden border border-white/20">
 
-      {/* Inputs row */}
-      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1.2fr_auto] gap-4">
-        {/* From */}
-        <Select value={from} onValueChange={setFrom}>
-            <SelectTrigger className="h-12 text-base">
-            <SelectValue placeholder="Enter location" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="anywhere">Any Airport</SelectItem>
-            {origins.map((o) => (
-              <SelectItem key={o.iata_code} value={o.iata_code}>
-                {o.city} ({o.iata_code})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* To */}
-        <Select value={to} onValueChange={setTo}>
-          <SelectTrigger className="h-12 text-base">
-              <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {toOptions.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Within - connected number + unit */}
-        <div className="flex h-12 rounded-md border border-input overflow-hidden">
-          <Input
-            className="h-full text-base flex-1 min-w-0 border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            placeholder="Enter number"
-            value={within}
-            onChange={handleWithinChange}
-            inputMode="numeric"
-          />
-          <div className="w-px bg-border" />
-          <Select value={unit} onValueChange={setUnit}>
-            <SelectTrigger className="h-full text-base w-28 border-0 rounded-none focus:ring-0 focus:ring-offset-0">
-              <SelectValue />
+        {/* FROM */}
+        <div className="flex-1 px-5 py-3.5 min-w-0">
+          <p className={fieldLabel}>From <span className="text-accent normal-case tracking-normal">*</span></p>
+          <Select value={from} onValueChange={setFrom}>
+            <SelectTrigger className={selectTriggerClass}>
+              <SelectValue placeholder="Country, city or airport" />
             </SelectTrigger>
             <SelectContent>
-              {durationUnits.map((u) => (
-                <SelectItem key={u} value={u}>{u}</SelectItem>
+              <SelectItem value="anywhere">Any Airport</SelectItem>
+              {origins.map((o) => (
+                <SelectItem key={o.iata_code} value={o.iata_code}>
+                  {o.city} ({o.iata_code})
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        {/* Search button */}
-        <Button
-          className="h-12 bg-foreground text-background hover:bg-foreground/90 font-body text-base px-8"
-          onClick={handleSearch}
-        >
-          SEARCH
-        </Button>
+        {/* Divider */}
+        <div className="w-px bg-border self-stretch my-3" />
+
+        {/* TO */}
+        <div className="flex-1 px-5 py-3.5 min-w-0">
+          <p className={fieldLabel}>To</p>
+          <Select value={to} onValueChange={setTo}>
+            <SelectTrigger className={selectTriggerClass}>
+              <SelectValue placeholder="Everywhere" />
+            </SelectTrigger>
+            <SelectContent>
+              {toOptions.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Divider */}
+        <div className="w-px bg-border self-stretch my-3" />
+
+        {/* WITHIN */}
+        <div className="flex-[1.2] px-5 py-3.5 min-w-0">
+          <p className={fieldLabel}>Within</p>
+          <div className="flex items-center gap-2">
+            <Input
+              className="border-0 shadow-none p-0 h-auto text-sm font-body font-medium text-foreground placeholder:text-muted-foreground focus-visible:ring-0 w-20 min-w-0"
+              placeholder="e.g. 30"
+              value={within}
+              onChange={handleWithinChange}
+              inputMode="numeric"
+            />
+            <Select value={unit} onValueChange={setUnit}>
+              <SelectTrigger className={selectTriggerClass + " w-24"}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {durationUnits.map((u) => (
+                  <SelectItem key={u} value={u}>{u}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* SEARCH BUTTON */}
+        <div className="flex items-center px-3 py-3">
+          <Button
+            onClick={handleSearch}
+            className="h-12 px-8 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-body font-semibold text-sm gap-2"
+          >
+            <Search className="h-4 w-4" />
+            Search
+          </Button>
+        </div>
       </div>
     </div>
   );

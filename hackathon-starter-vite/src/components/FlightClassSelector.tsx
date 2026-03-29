@@ -1,5 +1,3 @@
-import { Checkbox } from "@/components/ui/checkbox";
-
 const flightClasses = ["Economy", "Premium Economy", "Business", "First"] as const;
 type FlightClass = (typeof flightClasses)[number];
 
@@ -10,20 +8,19 @@ interface FlightClassSelectorProps {
 
 const FlightClassSelector = ({ selected, onChange }: FlightClassSelectorProps) => {
   return (
-    <div className="inline-flex items-center gap-10">
+    <div className="inline-flex items-center gap-1 bg-black/10 rounded-full p-1">
       {flightClasses.map((cls) => (
-        <label key={cls} className="flex items-center gap-2.5 text-base font-body cursor-pointer">
-          <Checkbox className="h-5 w-5"
-            checked={selected === cls}
-            onCheckedChange={(checked) => {
-              if (checked) {
-                onChange(cls);
-              }
-              // Prevent unchecking - always need one selected
-            }}
-          />
+        <button
+          key={cls}
+          onClick={() => onChange(cls)}
+          className={`px-4 py-1.5 rounded-full text-sm font-body font-semibold transition-all duration-200 ${
+            selected === cls
+              ? "bg-white text-foreground shadow-sm"
+              : "text-primary-foreground/80 hover:text-primary-foreground"
+          }`}
+        >
           {cls}
-        </label>
+        </button>
       ))}
     </div>
   );

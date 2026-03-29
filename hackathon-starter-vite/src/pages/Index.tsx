@@ -14,7 +14,16 @@ const Index = () => {
       <Navbar />
 
       {/* Hero search area */}
-      <div className="bg-gradient-to-b from-primary to-background pt-[2.5vw] pb-[5vw] px-[2.5%]">
+      <div className="bg-gradient-to-b from-primary via-primary/80 to-background pt-[3vw] pb-[6vw] px-[2.5%]">
+        {/* Tagline */}
+        <div className="text-center mb-6">
+          <h1 className="font-poppins font-extrabold text-white text-[clamp(1.8rem,3.5vw,3.2rem)] leading-tight mb-2">
+            Find deals. Fly smarter.
+          </h1>
+          <p className="font-body text-white/80 text-[clamp(0.9rem,1.4vw,1.2rem)]">
+            We track prices 24/7 and notify you when fares drop.
+          </p>
+        </div>
         <SearchForm />
       </div>
 
