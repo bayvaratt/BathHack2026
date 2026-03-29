@@ -22,22 +22,23 @@ type AirportOption = {
 
 const durationUnits = ["days", "weeks", "months"];
 
-const destinations = [
-  { label: "Amsterdam", x: 55, y: 22 },
-  { label: "Paris", x: 42, y: 28 },
-  { label: "Barcelona", x: 30, y: 38 },
-  { label: "Rome", x: 58, y: 38 },
-  { label: "Athens", x: 68, y: 44 },
-  { label: "Lisbon", x: 18, y: 48 },
-  { label: "Madrid", x: 24, y: 56 },
-  { label: "Dubai", x: 78, y: 34 },
-  { label: "Bangkok", x: 88, y: 52 },
-  { label: "Singapore", x: 85, y: 68 },
-  { label: "Tokyo", x: 92, y: 22 },
-  { label: "Shanghai", x: 82, y: 14 },
-  { label: "Sydney", x: 90, y: 80 },
-  { label: "New York", x: 8, y: 32 },
-];
+const destinations = (() => {
+  const names = [
+    "Amsterdam", "Shanghai", "Tokyo", "Dubai",
+    "Bangkok", "Singapore", "Sydney", "New York",
+    "Madrid", "Lisbon", "Barcelona", "Athens",
+    "Rome", "Paris",
+  ];
+  return names.map((label, index) => {
+    const angleDeg = index * (360 / 14) - 90;
+    const radians = (angleDeg * Math.PI) / 180;
+    return {
+      label,
+      x: Math.round((50 + 42 * Math.cos(radians)) * 10) / 10,
+      y: Math.round((50 + 42 * Math.sin(radians)) * 10) / 10,
+    };
+  });
+})();
 
 const origin = { x: 50, y: 50 };
 
@@ -297,21 +298,21 @@ const Notify = () => {
             : "pointer-events-none max-h-0 -translate-y-4 overflow-hidden opacity-0"
         } flex justify-center`}
       >
-        <div className="w-full max-w-2xl">
-          <div className="mb-6 flex justify-center">
-            <div className="h-10 w-px bg-gradient-to-b from-primary/40 to-transparent" />
+        <div className="w-full max-w-4xl">
+          <div className="flex justify-center mb-6">
+            <div className="w-px h-10 bg-gradient-to-b from-primary/40 to-transparent" />
           </div>
 
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-lg">
-            <h2 className="mb-5 text-sm font-heading tracking-widest text-muted-foreground uppercase">
+          <div className="bg-card rounded-2xl p-12 shadow-lg border border-border">
+            <h2 className="font-heading text-base tracking-widest text-muted-foreground uppercase mb-8">
               Set up your alert
             </h2>
 
             <FlightClassSelector selected={flightClass} onChange={setFlightClass} />
 
-            <div className="mt-5 grid grid-cols-2 gap-4">
+            <div className="mt-8 grid grid-cols-2 gap-6">
               <div>
-                <label className="text-xs font-body text-muted-foreground">
+                <label className="text-sm font-body text-muted-foreground">
                   From<span className="text-accent">*</span>
                 </label>
                 <Select value={from} onValueChange={setFrom}>
@@ -329,7 +330,7 @@ const Notify = () => {
               </div>
 
               <div>
-                <label className="text-xs font-body text-muted-foreground">To</label>
+                <label className="text-sm font-body text-muted-foreground">To</label>
                 <Select value={to} onValueChange={setTo}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Choose destination" />
@@ -345,8 +346,10 @@ const Notify = () => {
               </div>
 
               <div className="col-span-2">
-                <label className="text-xs font-body text-muted-foreground">Within</label>
-                <div className="mt-1 flex gap-2">
+                <label className="text-sm font-body text-muted-foreground">
+                  Depart within
+                </label>
+                <div className="flex gap-2 mt-1">
                   <Input
                     placeholder="Enter number"
                     value={within}
@@ -370,9 +373,9 @@ const Notify = () => {
               </div>
             </div>
 
-            <div className="mt-6 space-y-4">
+            <div className="mt-8 space-y-5">
               <div>
-                <label className="text-xs font-body text-muted-foreground">Enter Email</label>
+                <label className="text-sm font-body text-muted-foreground">Email</label>
                 <Input
                   type="email"
                   value={email}
@@ -383,7 +386,7 @@ const Notify = () => {
               </div>
 
               <div>
-                <label className="text-xs font-body text-muted-foreground">
+                <label className="text-sm font-body text-muted-foreground">
                   WhatsApp phone number
                 </label>
                 <Input
@@ -395,7 +398,7 @@ const Notify = () => {
                 />
               </div>
 
-              <label className="flex items-start gap-2 text-xs font-body">
+              <label className="flex items-start gap-2 text-sm font-body text-muted-foreground cursor-pointer">
                 <Checkbox
                   checked={consent}
                   onCheckedChange={(checked: boolean) => setConsent(checked === true)}
