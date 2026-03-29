@@ -54,10 +54,19 @@ function getBadge(discountPercent) {
   return "Below Average";
 }
 
+function isWildcardRegion(region) {
+  return region === "all" || region === "everywhere";
+}
+
 async function fetchLookupMap(table) {
+  const columns =
+    table === "destinations"
+      ? "iata_code, city, country, region"
+      : "iata_code, city, country";
+
   const { data, error } = await supabase
     .from(table)
-    .select("iata_code, city, country");
+    .select(columns);
 
   if (error) {
     throw new Error(`Failed to load ${table}: ${error.message}`);
@@ -82,7 +91,7 @@ async function fetchPendingMatches() {
     supabase
       .from("user_preferences")
       .select(
-        "subscriber_id, origin, destination, cabin_class, subscribers(id, email, phone_number)",
+        "subscriber_id, origin, region, cabin_class, subscribers(id, email, phone_number)",
       ),
     supabase.from("notifications").select("subscriber_id, deal_id"),
     supabase
@@ -166,7 +175,11 @@ async function main() {
         return (
           !alreadySent &&
           deal.origin === preference.origin &&
-          deal.destination === preference.destination &&
+          (
+            isWildcardRegion(preference.region) ||
+            preference.region === deal.destination ||
+            destinationsMap.get(deal.destination)?.region === preference.region
+          ) &&
           deal.cabin_class === preference.cabin_class
         );
       })
@@ -211,28 +224,45 @@ async function main() {
   let emailCount = 0;
   let whatsappCount = 0;
   let notificationRows = 0;
+  const deliveryErrors = [];
 
   for (const [subscriberId, payload] of subscriberDeals.entries()) {
     const { subscriber, deals: matchedDeals } = payload;
     let delivered = false;
 
     if (subscriber.email) {
-      await sendRecommendationEmail({
-        to: subscriber.email,
-        subject: `Flight deal: ${matchedDeals[0].destination_city} is ${matchedDeals[0].discount_percent}% cheaper than usual`,
-        html: buildEmailHTML(matchedDeals),
-      });
-      emailCount += 1;
-      delivered = true;
+      try {
+        await sendRecommendationEmail({
+          to: subscriber.email,
+          subject: `Flight deal: ${matchedDeals[0].destination_city} is ${matchedDeals[0].discount_percent}% cheaper than usual`,
+          html: buildEmailHTML(matchedDeals),
+        });
+        emailCount += 1;
+        delivered = true;
+      } catch (error) {
+        deliveryErrors.push({
+          channel: "email",
+          subscriberId,
+          message: error instanceof Error ? error.message : "Unknown email error",
+        });
+      }
     }
 
     if (subscriber.phone_number) {
-      await sendWhatsAppMessage({
-        to: subscriber.phone_number,
-        body: buildWhatsAppMessage(matchedDeals),
-      });
-      whatsappCount += 1;
-      delivered = true;
+      try {
+        await sendWhatsAppMessage({
+          to: subscriber.phone_number,
+          body: buildWhatsAppMessage(matchedDeals),
+        });
+        whatsappCount += 1;
+        delivered = true;
+      } catch (error) {
+        deliveryErrors.push({
+          channel: "whatsapp",
+          subscriberId,
+          message: error instanceof Error ? error.message : "Unknown WhatsApp error",
+        });
+      }
     }
 
     if (delivered) {
@@ -248,6 +278,7 @@ async function main() {
         emailsSent: emailCount,
         whatsappSent: whatsappCount,
         notificationsInserted: notificationRows,
+        deliveryErrors,
       },
       null,
       2,

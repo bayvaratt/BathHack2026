@@ -291,20 +291,35 @@ export async function sendNotificationsForDeal(
 
   for (const subscriber of (subscribers ?? []) as SubscriberRecord[]) {
     if (subscriber.email) {
-      await sendRecommendationEmail({
-        to: subscriber.email,
-        subject: `Flight deal: ${enrichedDeal.destination_city} is ${enrichedDeal.discount_percent}% cheaper than usual`,
-        html: buildEmailHTML([enrichedDeal]),
-      })
-      emailsSent++
+      try {
+        await sendRecommendationEmail({
+          to: subscriber.email,
+          subject: `Flight deal: ${enrichedDeal.destination_city} is ${enrichedDeal.discount_percent}% cheaper than usual`,
+          html: buildEmailHTML([enrichedDeal]),
+        })
+        emailsSent++
+      } catch (error) {
+        console.error('Email notification failed', {
+          subscriberId: subscriber.id,
+          message: error instanceof Error ? error.message : 'Unknown email error',
+        })
+      }
     }
 
     if (subscriber.phone_number) {
-      await sendWhatsAppMessage({
-        to: subscriber.phone_number,
-        body: buildWhatsAppMessage([enrichedDeal]),
-      })
-      whatsappSent++
+      try {
+        await sendWhatsAppMessage({
+          to: subscriber.phone_number,
+          body: buildWhatsAppMessage([enrichedDeal]),
+        })
+        whatsappSent++
+      } catch (error) {
+        console.error('WhatsApp notification failed', {
+          subscriberId: subscriber.id,
+          message:
+            error instanceof Error ? error.message : 'Unknown WhatsApp error',
+        })
+      }
     }
   }
 

@@ -9,6 +9,10 @@ const BATCH_SIZE = 10
 // Rotate through 4 dates spread across next month — each run picks a different one
 const DATE_OFFSETS = [7, 14, 21, 28]
 
+function isWildcardRegion(region: string) {
+  return region === 'all' || region === 'everywhere'
+}
+
 export const maxDuration = 60
 
 export async function GET(request: Request) {
@@ -189,14 +193,19 @@ export async function GET(request: Request) {
 
                 const { data: prefs } = await supabase
                   .from('user_preferences')
-                  .select('subscriber_id')
+                  .select('subscriber_id, region')
                   .eq('origin', origin.code)
-                  .eq('destination', dest.code)
                   .eq('cabin_class', cabinClass)
 
-                if (prefs && prefs.length > 0) {
+                const matchingPrefs = (prefs ?? []).filter((pref) =>
+                  isWildcardRegion(pref.region) ||
+                  pref.region === dest.code ||
+                  pref.region === dest.region,
+                )
+
+                if (matchingPrefs.length > 0) {
                   await supabase.from('notifications').insert(
-                    prefs.map((pref) => ({
+                    matchingPrefs.map((pref) => ({
                       subscriber_id: pref.subscriber_id,
                       deal_id: deal.id,
                     })),
@@ -214,7 +223,7 @@ export async function GET(request: Request) {
                       currency: price.price_currency,
                       discount_percent: Math.round(discountPct * 100),
                     },
-                    prefs.map((pref) => pref.subscriber_id),
+                    matchingPrefs.map((pref) => pref.subscriber_id),
                   )
 
                   batchEmailsSent += sendResult.emailsSent

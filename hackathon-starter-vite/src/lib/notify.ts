@@ -7,18 +7,26 @@ export const FLIGHT_CLASS_TO_DB = {
   First: "first",
 } as const;
 
+function normalizeRegion(region: string) {
+  if (region === "everywhere") {
+    return "all";
+  }
+
+  return region;
+}
+
 export async function saveNotificationPreference({
   email,
   phoneNumber,
   origin,
-  destination,
+  region,
   cabinClass,
   departWithinDays,
 }: {
   email?: string;
   phoneNumber?: string;
   origin: string;
-  destination: string;
+  region: string;
   cabinClass: keyof typeof FLIGHT_CLASS_TO_DB;
   departWithinDays: number;
 }) {
@@ -111,12 +119,12 @@ export async function saveNotificationPreference({
       {
         subscriber_id: subscriberId,
         origin,
-        destination,
+        region: normalizeRegion(region),
         cabin_class: FLIGHT_CLASS_TO_DB[cabinClass],
         depart_within_days: departWithinDays,
       },
       {
-        onConflict: "subscriber_id,origin,destination,cabin_class",
+        onConflict: "subscriber_id,origin,region,cabin_class",
       },
     );
 

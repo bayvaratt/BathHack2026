@@ -154,7 +154,7 @@ const Notify = () => {
   const [flightClass, setFlightClass] = useState<FlightClass>("Economy");
   const [originOptions, setOriginOptions] = useState<AirportOption[]>([]);
   const [from, setFrom] = useState("");
-  const [to, setTo] = useState("everywhere");
+  const [to, setTo] = useState("all");
   const [within, setWithin] = useState("");
   const [unit, setUnit] = useState("days");
   const [email, setEmail] = useState("");
@@ -223,7 +223,7 @@ const Notify = () => {
         email,
         phoneNumber,
         origin: from,
-        destination: to,
+        region: to,
         cabinClass: flightClass,
         departWithinDays: parseInt(within) * unitToDays[unit],
       });
@@ -334,7 +334,7 @@ const Notify = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="everywhere">Everywhere</SelectItem>
+                    <SelectItem value="all">Everywhere</SelectItem>
                     <SelectItem value="Europe">Europe</SelectItem>
                     <SelectItem value="Asia">Asia</SelectItem>
                     <SelectItem value="Americas">Americas</SelectItem>
