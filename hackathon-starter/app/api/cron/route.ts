@@ -28,7 +28,7 @@ export async function GET(request: Request) {
       for (const cabinClass of CABIN_CLASSES) {
         try {
           const offerRequest = await duffel.offerRequests.create({
-            slices: [{ origin: origin.code, destination: dest.code, departure_date: date }],
+            slices: [{ origin: origin.code, destination: dest.code, departure_date: date, arrival_time: null, departure_time: null }],
             passengers: [{ type: 'adult' }],
             cabin_class: cabinClass,
           })
