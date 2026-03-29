@@ -13,6 +13,13 @@ function isWildcardRegion(region: string) {
   return region === 'all' || region === 'everywhere'
 }
 
+function getDaysUntilDeparture(departureDate: string) {
+  const now = new Date()
+  const departure = new Date(departureDate)
+  const msPerDay = 1000 * 60 * 60 * 24
+  return Math.ceil((departure.getTime() - now.getTime()) / msPerDay)
+}
+
 export const maxDuration = 60
 
 export async function GET(request: Request) {
@@ -197,14 +204,19 @@ export async function GET(request: Request) {
 
                 const { data: prefs } = await supabase
                   .from('user_preferences')
-                  .select('subscriber_id, region')
+                  .select('subscriber_id, region, depart_within_days')
                   .eq('origin', origin.code)
                   .eq('cabin_class', cabinClass)
 
+                const daysUntilDeparture = getDaysUntilDeparture(
+                  price.departure_date,
+                )
                 const matchingPrefs = (prefs ?? []).filter((pref) =>
-                  isWildcardRegion(pref.region) ||
-                  pref.region === dest.code ||
-                  pref.region === dest.region,
+                  (pref.depart_within_days == null ||
+                    daysUntilDeparture <= pref.depart_within_days) &&
+                  (isWildcardRegion(pref.region) ||
+                    pref.region === dest.code ||
+                    pref.region === dest.region),
                 )
 
                 if (matchingPrefs.length > 0) {

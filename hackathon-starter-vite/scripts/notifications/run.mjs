@@ -58,6 +58,13 @@ function isWildcardRegion(region) {
   return region === "all" || region === "everywhere";
 }
 
+function getDaysUntilDeparture(departureDate) {
+  const now = new Date();
+  const departure = new Date(departureDate);
+  const msPerDay = 1000 * 60 * 60 * 24;
+  return Math.ceil((departure.getTime() - now.getTime()) / msPerDay);
+}
+
 async function fetchLookupMap(table) {
   const columns =
     table === "destinations"
@@ -91,7 +98,7 @@ async function fetchPendingMatches() {
     supabase
       .from("user_preferences")
       .select(
-        "subscriber_id, origin, region, cabin_class, subscribers(id, email, phone_number)",
+        "subscriber_id, origin, region, cabin_class, depart_within_days, subscribers(id, email, phone_number)",
       ),
     supabase.from("notifications").select("subscriber_id, deal_id"),
     supabase
@@ -175,6 +182,10 @@ async function main() {
         return (
           !alreadySent &&
           deal.origin === preference.origin &&
+          (
+            preference.depart_within_days == null ||
+            getDaysUntilDeparture(deal.departure_date) <= preference.depart_within_days
+          ) &&
           (
             isWildcardRegion(preference.region) ||
             preference.region === deal.destination ||
