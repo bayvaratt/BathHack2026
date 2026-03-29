@@ -13,12 +13,14 @@ export async function saveNotificationPreference({
   origin,
   destination,
   cabinClass,
+  departWithinDays,
 }: {
   email?: string;
   phoneNumber?: string;
   origin: string;
   destination: string;
   cabinClass: keyof typeof FLIGHT_CLASS_TO_DB;
+  departWithinDays: number;
 }) {
   if (!email && !phoneNumber) {
     throw new Error("Please provide an email or a phone number.");
@@ -111,6 +113,7 @@ export async function saveNotificationPreference({
         origin,
         destination,
         cabin_class: FLIGHT_CLASS_TO_DB[cabinClass],
+        depart_within_days: departWithinDays,
       },
       {
         onConflict: "subscriber_id,origin,destination,cabin_class",

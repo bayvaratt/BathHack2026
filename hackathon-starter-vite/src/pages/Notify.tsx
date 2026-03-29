@@ -197,6 +197,7 @@ const Notify = () => {
 
   const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   const validatePhone = (v: string) => /^\+?[0-9\s\-()]{7,15}$/.test(v);
+  const unitToDays: Record<string, number> = { days: 1, weeks: 7, months: 30 };
 
   const handleSubmit = async () => {
     const nextErrors: Record<string, string> = {};
@@ -224,6 +225,7 @@ const Notify = () => {
         origin: from,
         destination: to,
         cabinClass: flightClass,
+        departWithinDays: parseInt(within) * unitToDays[unit],
       });
 
       toast.success("Preference saved. Matching deals can now be sent.");
