@@ -172,6 +172,14 @@ const Notify = () => {
       <div className="relative flex flex-col items-center justify-center overflow-hidden" style={{ minHeight: "80vh" }}>
         <FlightMapBackground />
 
+        {/* Radial mask — clears center so text is readable */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "radial-gradient(ellipse 55% 50% at 50% 50%, hsl(var(--background)) 30%, transparent 80%)",
+          }}
+        />
+
         {/* Gradient fade at bottom */}
         <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-background to-transparent" />
 
