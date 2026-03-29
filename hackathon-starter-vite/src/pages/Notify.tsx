@@ -195,11 +195,20 @@ const Notify = () => {
     }, 100);
   };
 
+  const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const validatePhone = (v: string) => /^\+?[0-9\s\-()]{7,15}$/.test(v);
+
   const handleSubmit = async () => {
     const nextErrors: Record<string, string> = {};
-    if (!from) nextErrors.from = "Please select a departure airport.";
-    if (!email && !phoneNumber) nextErrors.contact = "Please enter an email or phone number.";
-    if (!consent) nextErrors.consent = "You must agree to receive notifications.";
+    if (!from) nextErrors.from = "Required — please select a departure airport.";
+    if (!email && !phoneNumber) {
+      nextErrors.email = "Please enter an email address.";
+      nextErrors.phone = "Or enter a WhatsApp number.";
+    } else {
+      if (email && !validateEmail(email)) nextErrors.email = "Enter a valid email address (e.g. you@example.com).";
+      if (phoneNumber && !validatePhone(phoneNumber)) nextErrors.phone = "Enter a valid phone number with country code (e.g. +447700900123).";
+    }
+    if (!consent) nextErrors.consent = "Required — please agree to continue.";
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
@@ -295,30 +304,30 @@ const Notify = () => {
 
             <FlightClassSelector selected={flightClass} onChange={setFlightClass} />
 
-            <div className="mt-8 grid grid-cols-2 gap-6">
-              <div>
-                <label className={`text-sm font-body ${errors.from ? "text-destructive" : "text-muted-foreground"}`}>
-                  From<span className="text-accent">*</span>
+            <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-6">
+              {/* From */}
+              <div className="flex flex-col">
+                <label className={`text-sm font-body mb-1 ${errors.from ? "text-destructive" : "text-muted-foreground"}`}>
+                  From<span className="text-accent ml-0.5">*</span>
                 </label>
-                {errors.from && <p className="text-xs text-destructive mt-0.5">{errors.from}</p>}
                 <Select value={from} onValueChange={(v) => { setFrom(v); setErrors((e) => ({ ...e, from: "" })); }}>
-                  <SelectTrigger className={`mt-1 ${errors.from ? "border-destructive ring-destructive" : ""}`}>
+                  <SelectTrigger className={errors.from ? "border-destructive focus:ring-destructive" : ""}>
                     <SelectValue placeholder="Select airport" />
                   </SelectTrigger>
                   <SelectContent>
                     {originOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
+                      <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-destructive mt-1 min-h-[1rem]">{errors.from ?? ""}</p>
               </div>
 
-              <div>
-                <label className="text-sm font-body text-muted-foreground">To</label>
+              {/* To */}
+              <div className="flex flex-col">
+                <label className="text-sm font-body text-muted-foreground mb-1">To</label>
                 <Select value={to} onValueChange={setTo}>
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -328,29 +337,27 @@ const Notify = () => {
                     <SelectItem value="Americas">Americas</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="min-h-[1rem]" />
               </div>
 
-              <div className="col-span-2">
-                <label className="text-sm font-body text-muted-foreground">
-                  Depart within
-                </label>
-                <div className="flex gap-2 mt-1">
+              {/* Depart within */}
+              <div className="col-span-2 flex flex-col">
+                <label className="text-sm font-body text-muted-foreground mb-1">Depart within</label>
+                <div className="flex gap-2">
                   <Input
-                    placeholder="Enter number"
+                    placeholder="e.g. 3"
                     value={within}
                     onChange={handleWithinChange}
                     inputMode="numeric"
-                    className="flex-1 placeholder:text-muted-foreground"
+                    className="flex-1"
                   />
                   <Select value={unit} onValueChange={setUnit}>
                     <SelectTrigger className="w-32">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {durationUnits.map((durationUnit) => (
-                        <SelectItem key={durationUnit} value={durationUnit}>
-                          {durationUnit}
-                        </SelectItem>
+                      {durationUnits.map((u) => (
+                        <SelectItem key={u} value={u}>{u}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -358,32 +365,40 @@ const Notify = () => {
               </div>
             </div>
 
-            <div className="mt-8 space-y-5">
-              <div>
-                {errors.contact && <p className="text-xs text-destructive mb-1">{errors.contact}</p>}
-                <label className={`text-sm font-body ${errors.contact ? "text-destructive" : "text-muted-foreground"}`}>Email</label>
+            <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-0">
+              {/* Email */}
+              <div className="flex flex-col">
+                <label className={`text-sm font-body mb-1 ${errors.email ? "text-destructive" : "text-muted-foreground"}`}>
+                  Email
+                </label>
                 <Input
                   type="email"
                   value={email}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setEmail(event.target.value); setErrors((e) => ({ ...e, contact: "" })); }}
-                  className={`mt-1 placeholder:text-muted-foreground ${errors.contact ? "border-destructive" : ""}`}
+                  onChange={(e) => { setEmail(e.target.value); setErrors((err) => ({ ...err, email: "" })); }}
+                  className={errors.email ? "border-destructive focus-visible:ring-destructive" : ""}
                   placeholder="you@example.com"
                 />
+                <p className="text-xs text-destructive mt-1 min-h-[1rem]">{errors.email ?? ""}</p>
               </div>
 
-              <div>
-                <label className={`text-sm font-body ${errors.contact ? "text-destructive" : "text-muted-foreground"}`}>
-                  WhatsApp phone number
+              {/* Phone */}
+              <div className="flex flex-col">
+                <label className={`text-sm font-body mb-1 ${errors.phone ? "text-destructive" : "text-muted-foreground"}`}>
+                  WhatsApp number
                 </label>
                 <Input
                   type="tel"
                   value={phoneNumber}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setPhoneNumber(event.target.value); setErrors((e) => ({ ...e, contact: "" })); }}
-                  className={`mt-1 placeholder:text-muted-foreground ${errors.contact ? "border-destructive" : ""}`}
+                  onChange={(e) => { setPhoneNumber(e.target.value); setErrors((err) => ({ ...err, phone: "" })); }}
+                  className={errors.phone ? "border-destructive focus-visible:ring-destructive" : ""}
                   placeholder="+447700900123"
                 />
+                <p className="text-xs text-destructive mt-1 min-h-[1rem]">{errors.phone ?? ""}</p>
               </div>
+            </div>
 
+            <div className="mt-4 space-y-4">
+              {/* Consent */}
               <div>
                 <label className={`flex items-start gap-2 text-sm font-body cursor-pointer ${errors.consent ? "text-destructive" : "text-muted-foreground"}`}>
                   <Checkbox
@@ -393,15 +408,15 @@ const Notify = () => {
                   />
                   I agree to receive deal notifications for this route.
                 </label>
-                {errors.consent && <p className="text-xs text-destructive mt-1 ml-6">{errors.consent}</p>}
+                <p className="text-xs text-destructive mt-1 ml-6 min-h-[1rem]">{errors.consent ?? ""}</p>
               </div>
 
               <Button
                 disabled={isSubmitting}
                 onClick={handleSubmit}
-                className="w-full border border-primary/30 bg-primary/20 font-body text-primary hover:bg-primary/30 disabled:cursor-not-allowed disabled:opacity-40"
+                className="w-full rounded-full bg-primary py-5 font-heading tracking-wider text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {isSubmitting ? "Saving..." : "Submit"}
+                {isSubmitting ? "Saving..." : "Set Alert"}
               </Button>
             </div>
           </div>
