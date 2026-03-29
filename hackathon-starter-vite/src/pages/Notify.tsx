@@ -153,9 +153,8 @@ const Notify = () => {
   const [showSetup, setShowSetup] = useState(false);
   const [flightClass, setFlightClass] = useState<FlightClass>("Economy");
   const [originOptions, setOriginOptions] = useState<AirportOption[]>([]);
-  const [destinationOptions, setDestinationOptions] = useState<AirportOption[]>([]);
   const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
+  const [to, setTo] = useState("everywhere");
   const [within, setWithin] = useState("");
   const [unit, setUnit] = useState("days");
   const [email, setEmail] = useState("");
@@ -165,34 +164,20 @@ const Notify = () => {
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    async function loadAirportOptions() {
-      const [{ data: origins, error: originsError }, { data: destinations, error: destinationsError }] =
-        await Promise.all([
-          supabase.from("origins").select("iata_code, city"),
-          supabase.from("destinations").select("iata_code, city"),
-        ]);
-
-      if (originsError || destinationsError) {
-        toast.error("Unable to load route options from Supabase.");
+    async function loadOrigins() {
+      const { data: origins, error } = await supabase.from("origins").select("iata_code, city");
+      if (error) {
+        toast.error("Unable to load origin options.");
         return;
       }
-
       setOriginOptions(
         (origins ?? []).map((airport) => ({
           value: airport.iata_code,
           label: `${airport.city} (${airport.iata_code})`,
         })),
       );
-
-      setDestinationOptions(
-        (destinations ?? []).map((airport) => ({
-          value: airport.iata_code,
-          label: `${airport.city} (${airport.iata_code})`,
-        })),
-      );
     }
-
-    loadAirportOptions();
+    loadOrigins();
   }, []);
 
   const handleWithinChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -210,8 +195,8 @@ const Notify = () => {
   };
 
   const handleSubmit = async () => {
-    if (!from || !to) {
-      toast.error("Please choose both an origin and destination.");
+    if (!from) {
+      toast.error("Please choose a departure airport.");
       return;
     }
 
@@ -333,14 +318,13 @@ const Notify = () => {
                 <label className="text-sm font-body text-muted-foreground">To</label>
                 <Select value={to} onValueChange={setTo}>
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Choose destination" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {destinationOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="everywhere">Everywhere</SelectItem>
+                    <SelectItem value="Europe">Europe</SelectItem>
+                    <SelectItem value="Asia">Asia</SelectItem>
+                    <SelectItem value="Americas">Americas</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
