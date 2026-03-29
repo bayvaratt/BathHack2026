@@ -31,8 +31,9 @@ export async function GET(request: Request) {
     return d.toISOString().split('T')[0]
   })
 
-  await supabase.from('notifications').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-  await supabase.from('deals').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+  // Only remove deals with past departure dates — keep current deals until new ones replace them
+  const today = new Date().toISOString().split('T')[0]
+  await supabase.from('deals').delete().lt('departure_date', today)
 
   const errors: string[] = []
   let pricesSaved = 0
