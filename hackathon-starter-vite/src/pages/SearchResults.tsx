@@ -1,103 +1,146 @@
 import Navbar from "@/components/Navbar";
+import DealCard from "@/components/DealCard";
 import { useSearchParams } from "react-router-dom";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase.js";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { getDestinationImage } from "@/lib/destinationImages";
 
-const durationUnits = ["days", "weeks", "months", "years"];
+const cabinMap: Record<string, string> = {
+  Economy: "economy",
+  "Premium Economy": "premium_economy",
+  Business: "business",
+  First: "first",
+};
+
+const unitToDays: Record<string, number> = {
+  days: 1,
+  weeks: 7,
+  months: 30,
+  years: 365,
+};
 
 const SearchResults = () => {
   const [params] = useSearchParams();
-  const within = params.get("within") || "0";
+  const withinParam = params.get("within") || "";
   const unit = params.get("unit") || "days";
   const fromParam = params.get("from") || "";
   const toParam = params.get("to") || "everywhere";
-  const classParam = params.get("class") || "Economy";
+  const classParam = params.get("class") || "All";
 
   const { convert } = useCurrency();
-  const [flights, setFlights] = useState<any[]>([]);
+  const [deals, setDeals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const cabinMap: Record<string, string> = {
-      Economy: "economy",
-      "Premium Economy": "premium_economy",
-      Business: "business",
-      First: "first",
-    };
+    setLoading(true);
 
     let query = supabase
-      .from("flight_prices")
+      .from("deals")
       .select("*, destinations(city, country, region)")
-      .eq("cabin_class", cabinMap[classParam] ?? "economy")
-      .order("price_amount", { ascending: true })
-      .limit(50);
+      .order("discount_percent", { ascending: false })
+      .limit(48);
 
     if (fromParam && fromParam !== "anywhere") {
       query = query.eq("origin", fromParam.toUpperCase());
     }
-    if (toParam !== "everywhere") {
-      query = query.eq("destinations.region", toParam);
+
+    if (classParam !== "All" && cabinMap[classParam]) {
+      query = query.eq("cabin_class", cabinMap[classParam]);
     }
 
-    query.then(({ data }) => {
-      setFlights(data ?? []);
+    if (withinParam && parseInt(withinParam) > 0) {
+      const maxDate = new Date();
+      maxDate.setDate(maxDate.getDate() + parseInt(withinParam) * (unitToDays[unit] ?? 1));
+      query = query.lte("departure_date", maxDate.toISOString().split("T")[0]);
+    }
+
+    query.then(async ({ data }) => {
+      if (!data || data.length === 0) {
+        setDeals([]);
+        setLoading(false);
+        return;
+      }
+
+      // Filter by region client-side (Supabase foreign table filters aren't always reliable)
+      const filtered = toParam === "everywhere"
+        ? data
+        : data.filter((d) => d.destinations?.region === toParam);
+
+      // Fetch durations
+      const { data: prices } = await supabase
+        .from("flight_prices")
+        .select("origin, destination, cabin_class, departure_date, duration")
+        .in("origin", [...new Set(filtered.map((d) => d.origin))])
+        .in("destination", [...new Set(filtered.map((d) => d.destination))]);
+
+      const durMap: Record<string, string> = {};
+      prices?.forEach((p) => {
+        const key = `${p.origin}-${p.destination}-${p.cabin_class}-${p.departure_date}`;
+        if (p.duration) durMap[key] = p.duration;
+      });
+
+      filtered.forEach((d) => {
+        const key = `${d.origin}-${d.destination}-${d.cabin_class}-${d.departure_date}`;
+        d.duration = durMap[key];
+      });
+
+      setDeals(filtered);
       setLoading(false);
     });
-  }, [fromParam, toParam, classParam]);
+  }, [fromParam, toParam, classParam, withinParam, unit]);
+
+  const mapped = deals.map((d) => {
+    const rawAvgPrice = Math.round(d.new_price / (1 - d.discount_percent / 100));
+    return {
+      name: d.destinations?.city ?? d.destination,
+      country: d.destinations?.country ?? "",
+      price: convert(d.new_price),
+      originalPrice: convert(rawAvgPrice),
+      discount: `${Math.round(d.discount_percent)}% off!`,
+      image: getDestinationImage(d.destination),
+      cabinClass: d.cabin_class,
+      origin: d.origin,
+      airline: d.airline,
+      departureDate: d.departure_date,
+      originCode: d.origin,
+      destinationCode: d.destination,
+      duration: d.duration,
+      rawPrice: d.new_price,
+      rawAvgPrice,
+      discountPct: Math.round(d.discount_percent),
+    };
+  });
+
+  const fromLabel = fromParam && fromParam !== "anywhere" ? fromParam.toUpperCase() : "Any airport";
+  const toLabel = toParam === "everywhere" ? "Everywhere" : toParam;
+  const withinLabel = withinParam ? `within ${withinParam} ${unit}` : "";
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="flex gap-2 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-9 h-10" placeholder="Search destinations..." readOnly value={toParam} />
-          </div>
-          <Input className="h-10 w-20" value={within} readOnly />
-          <Select defaultValue={unit}>
-            <SelectTrigger className="h-10 w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {durationUnits.map((u) => (
-                <SelectItem key={u} value={u}>{u}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="w-[95%] max-w-[1500px] mx-auto py-[2vw]">
+        <div className="mb-6">
+          <h1 className="font-poppins font-bold text-2xl text-foreground">
+            {fromLabel} → {toLabel}
+            {withinLabel && <span className="text-muted-foreground font-normal text-lg ml-2">{withinLabel}</span>}
+          </h1>
+          {!loading && (
+            <p className="text-sm text-muted-foreground mt-1">
+              {mapped.length} deal{mapped.length !== 1 ? "s" : ""} found
+            </p>
+          )}
         </div>
 
-        <p className="font-body text-sm mb-6">
-          within <span className="text-primary font-bold">{within}</span> {unit}, there are{" "}
-          <span className="text-primary font-bold">{loading ? "..." : flights.length}</span> available options
-        </p>
-
         {loading ? (
-          <p className="font-body text-muted-foreground">Loading flights...</p>
-        ) : flights.length === 0 ? (
-          <p className="font-body text-muted-foreground">No flights found for this search.</p>
+          <p className="font-body text-muted-foreground">Loading deals...</p>
+        ) : mapped.length === 0 ? (
+          <p className="font-body text-muted-foreground">No deals found for this search.</p>
         ) : (
-          <div className="space-y-3">
-            {flights.map((f) => (
-              <div key={f.id} className="bg-card border border-border rounded-lg p-4 flex justify-between items-center">
-                <div>
-                  <p className="font-body font-bold text-foreground">{f.origin} → {f.destination}</p>
-                  <p className="font-body text-sm text-muted-foreground">{f.airline} · {f.stops === 0 ? "Direct" : `${f.stops} stop${f.stops > 1 ? "s" : ""}`} · {f.cabin_class}</p>
-                  <p className="font-body text-xs text-muted-foreground">{f.destinations?.city}, {f.destinations?.country}</p>
-                </div>
-                <p className="font-body font-bold text-primary text-xl">{convert(f.price_amount)}</p>
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-[clamp(0.8rem,1.5vw,1.5rem)]">
+            {mapped.map((deal, i) => (
+              <DealCard key={i} {...deal} />
             ))}
           </div>
         )}
