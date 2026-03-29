@@ -27,23 +27,25 @@ const toOptions = [
 
 const durationUnits = ["days", "weeks", "months"];
 
-// Destinations spread around center (50,50) of the SVG canvas
-const destinations = [
-  { label: "Amsterdam",  x: 55, y: 22 },
-  { label: "Paris",      x: 42, y: 28 },
-  { label: "Barcelona",  x: 30, y: 38 },
-  { label: "Rome",       x: 58, y: 38 },
-  { label: "Athens",     x: 68, y: 44 },
-  { label: "Lisbon",     x: 18, y: 48 },
-  { label: "Madrid",     x: 24, y: 56 },
-  { label: "Dubai",      x: 78, y: 34 },
-  { label: "Bangkok",    x: 88, y: 52 },
-  { label: "Singapore",  x: 85, y: 68 },
-  { label: "Tokyo",      x: 92, y: 22 },
-  { label: "Shanghai",   x: 82, y: 14 },
-  { label: "Sydney",     x: 90, y: 80 },
-  { label: "New York",   x: 8,  y: 32 },
-];
+// 14 destinations evenly spaced in a circle (r=42) around center (50,50)
+// angle = i*(360/14) - 90° so index 0 starts at 12 o'clock
+const destinations = (() => {
+  const names = [
+    "Amsterdam", "Shanghai", "Tokyo", "Dubai",
+    "Bangkok", "Singapore", "Sydney", "New York",
+    "Madrid", "Lisbon", "Barcelona", "Athens",
+    "Rome", "Paris",
+  ];
+  return names.map((label, i) => {
+    const angleDeg = i * (360 / 14) - 90;
+    const rad = (angleDeg * Math.PI) / 180;
+    return {
+      label,
+      x: Math.round((50 + 42 * Math.cos(rad)) * 10) / 10,
+      y: Math.round((50 + 42 * Math.sin(rad)) * 10) / 10,
+    };
+  });
+})();
 
 // Origin hub — dead centre
 const origin = { x: 50, y: 50 };
@@ -220,14 +222,14 @@ const Notify = () => {
             <div className="w-px h-10 bg-gradient-to-b from-primary/40 to-transparent" />
           </div>
 
-          <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">
-            <h2 className="font-heading text-sm tracking-widest text-muted-foreground uppercase mb-5">
+          <div className="bg-card rounded-2xl p-10 shadow-lg border border-border">
+            <h2 className="font-heading text-sm tracking-widest text-muted-foreground uppercase mb-6">
               Set up your alert
             </h2>
 
             <FlightClassSelector selected={flightClass} onChange={setFlightClass} />
 
-            <div className="mt-5 grid grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-2 gap-5">
               <div>
                 <label className="text-xs font-body text-muted-foreground">
                   From<span className="text-accent">*</span>
@@ -290,7 +292,7 @@ const Notify = () => {
               </div>
             </div>
 
-            <div className="mt-6 space-y-4">
+            <div className="mt-8 space-y-5">
               <div>
                 <label className="text-xs font-body text-muted-foreground">Email</label>
                 <Input
