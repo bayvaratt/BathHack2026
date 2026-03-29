@@ -2,7 +2,7 @@ import { duffel } from '@/lib/duffel'
 import { supabase } from '@/lib/supabase'
 import { ORIGINS, DESTINATIONS } from '@/lib/destinations'
 
-const CABIN_CLASSES = ['economy'] as const
+const CABIN_CLASSES = ['economy', 'premium_economy', 'business', 'first'] as const
 const DEAL_THRESHOLD = 0.3
 const DAYS_AHEAD = 30
 
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
   }
 
   // Process in parallel batches of 5
-  const BATCH_SIZE = 5
+  const BATCH_SIZE = 10
   for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
     const batch = tasks.slice(i, i + BATCH_SIZE)
     const results = await Promise.allSettled(batch.map(async ({ origin, dest, cabinClass }) => {
