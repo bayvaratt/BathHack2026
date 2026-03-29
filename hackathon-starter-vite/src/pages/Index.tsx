@@ -1,40 +1,60 @@
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import SearchForm from "@/components/SearchForm";
 import DealSection from "@/components/DealSection";
-
-import parisImg from "@/assets/paris.jpg";
-import londonImg from "@/assets/london.jpg";
-import romeImg from "@/assets/rome.jpg";
-import tokyoImg from "@/assets/tokyo.jpg";
-import bangkokImg from "@/assets/bangkok.jpg";
-import baliImg from "@/assets/bali.jpg";
-
-const europeDeals = [
-  { name: "Paris", priceUsd: 299, originalPriceUsd: 429, discount: "30% cheaper!", image: parisImg },
-  { name: "London", priceUsd: 349, originalPriceUsd: 499, discount: "30% cheaper!", image: londonImg },
-  { name: "Rome", priceUsd: 279, originalPriceUsd: 389, discount: "28% cheaper!", image: romeImg },
-];
-
-const asiaDeals = [
-  { name: "Tokyo", priceUsd: 450, originalPriceUsd: 650, discount: "31% cheaper!", image: tokyoImg },
-  { name: "Bangkok", priceUsd: 199, originalPriceUsd: 310, discount: "36% cheaper!", image: bangkokImg },
-  { name: "Bali", priceUsd: 320, originalPriceUsd: 450, discount: "29% cheaper!", image: baliImg },
-];
+import { useDeals } from "@/hooks/useDeals";
+import { getDestinationImage } from "@/lib/destinationImages";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { type FlightClass } from "@/components/FlightClassSelector";
 
 const Index = () => {
+  const [flightClass, setFlightClass] = useState<FlightClass>("All");
+  const { dealsByRegion, loading } = useDeals(flightClass);
+  const { convert } = useCurrency();
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* Hero search area */}
-      <div className="bg-gradient-to-b from-primary to-background pt-[2.5vw] pb-[5vw] px-[2.5%]">
-        <SearchForm />
+      <div className="bg-gradient-to-b from-primary via-primary/80 to-background pt-[3vw] pb-[6vw] px-[2.5%]">
+        {/* Tagline */}
+        <div className="text-center mb-6">
+          <h1 className="font-poppins font-extrabold text-white text-[clamp(1.8rem,3.5vw,3.2rem)] leading-tight mb-2">
+            Find deals. Fly smarter.
+          </h1>
+          <p className="font-body text-white/80 text-[clamp(0.9rem,1.4vw,1.2rem)]">
+            We track prices 24/7 and notify you when fares drop.
+          </p>
+        </div>
+        <SearchForm flightClass={flightClass} setFlightClass={setFlightClass} />
       </div>
 
       {/* Deal sections */}
       <div className="w-[95%] max-w-[1500px] mx-auto py-[2vw]">
-        <DealSection region="Europe" deals={europeDeals} />
-        <DealSection region="Asia" deals={asiaDeals} />
+        {loading ? (
+          <p className="font-body text-muted-foreground">Loading deals...</p>
+        ) : Object.keys(dealsByRegion).length === 0 ? (
+          <p className="font-body text-muted-foreground">No deals found right now. Check back soon!</p>
+        ) : (
+          Object.entries(dealsByRegion).map(([region, deals]) => {
+            const mapped = deals.map((d) => {
+              const originalPrice = Math.round(d.new_price / (1 - d.discount_percent / 100));
+              return {
+                name: d.destinations?.city ?? d.destination,
+                country: d.destinations?.country ?? "",
+                price: convert(d.new_price),
+                originalPrice: convert(originalPrice),
+                discount: `${Math.round(d.discount_percent)}% off!`,
+                image: getDestinationImage(d.destination),
+                cabinClass: d.cabin_class,
+                origin: d.origin,
+                airline: d.airline,
+              };
+            });
+            return <DealSection key={region} region={region} deals={mapped} />;
+          })
+        )}
       </div>
     </div>
   );

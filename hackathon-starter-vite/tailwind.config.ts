@@ -67,6 +67,7 @@ export default {
         heading: ['"Oswald"', 'sans-serif'],
         body: ['"Open Sans"', 'sans-serif'],
         airone: ['"Airone"', 'sans-serif'],
+        poppins: ['"Poppins"', 'sans-serif'],
       },
       keyframes: {
         "accordion-down": {
