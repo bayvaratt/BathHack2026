@@ -10,10 +10,10 @@ interface FlightClassSelectorProps {
 
 const FlightClassSelector = ({ selected, onChange }: FlightClassSelectorProps) => {
   return (
-    <div className="inline-flex items-center gap-8">
+    <div className="inline-flex items-center gap-10">
       {flightClasses.map((cls) => (
-        <label key={cls} className="flex items-center gap-2 text-sm font-body cursor-pointer">
-          <Checkbox
+        <label key={cls} className="flex items-center gap-2.5 text-base font-body cursor-pointer">
+          <Checkbox className="h-5 w-5"
             checked={selected === cls}
             onCheckedChange={(checked) => {
               if (checked) {
