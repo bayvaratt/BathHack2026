@@ -4,7 +4,7 @@ import { sendNotificationsForDeal } from '@/lib/notifications'
 import { supabase } from '@/lib/supabase'
 
 const CABIN_CLASSES = ['economy', 'premium_economy', 'business', 'first'] as const
-const DEAL_THRESHOLD = 0.05
+const DEAL_THRESHOLD = 0.3
 const BATCH_SIZE = 10
 // Rotate through 4 dates spread across next month — each run picks a different one
 const DATE_OFFSETS = [7, 14, 21, 28]

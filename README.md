@@ -7,7 +7,7 @@ A flight deal monitoring system that tracks prices across 3 UK airports and 14 g
 ## What it does
 
 - **Polls the Duffel API** every day across 3 origins × 14 destinations × 4 cabin classes (168 routes)
-- **Detects deals** when a price is 5%+ below the 90-day average for that route
+- **Detects deals** when a price is 30%+ below the 90-day average for that route
 - **Notifies subscribers** by email (Resend) and WhatsApp (Twilio) the moment a deal is found
 - **Frontend** lets users browse live deals, search by origin/destination/class/date window, and sign up for alerts
 
