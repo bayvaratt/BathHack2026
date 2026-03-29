@@ -1,27 +1,14 @@
 import Navbar from "@/components/Navbar";
 import SearchForm from "@/components/SearchForm";
 import DealSection from "@/components/DealSection";
-
-import parisImg from "@/assets/paris.jpg";
-import londonImg from "@/assets/london.jpg";
-import romeImg from "@/assets/rome.jpg";
-import tokyoImg from "@/assets/tokyo.jpg";
-import bangkokImg from "@/assets/bangkok.jpg";
-import baliImg from "@/assets/bali.jpg";
-
-const europeDeals = [
-  { name: "Paris", priceUsd: 299, originalPriceUsd: 429, discount: "30% cheaper!", image: parisImg },
-  { name: "London", priceUsd: 349, originalPriceUsd: 499, discount: "30% cheaper!", image: londonImg },
-  { name: "Rome", priceUsd: 279, originalPriceUsd: 389, discount: "28% cheaper!", image: romeImg },
-];
-
-const asiaDeals = [
-  { name: "Tokyo", priceUsd: 450, originalPriceUsd: 650, discount: "31% cheaper!", image: tokyoImg },
-  { name: "Bangkok", priceUsd: 199, originalPriceUsd: 310, discount: "36% cheaper!", image: bangkokImg },
-  { name: "Bali", priceUsd: 320, originalPriceUsd: 450, discount: "29% cheaper!", image: baliImg },
-];
+import { useDeals } from "@/hooks/useDeals";
+import { getDestinationImage } from "@/lib/destinationImages";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 const Index = () => {
+  const { dealsByRegion, loading } = useDeals();
+  const { convert } = useCurrency();
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -33,8 +20,27 @@ const Index = () => {
 
       {/* Deal sections */}
       <div className="w-[95%] max-w-[1500px] mx-auto py-[2vw]">
-        <DealSection region="Europe" deals={europeDeals} />
-        <DealSection region="Asia" deals={asiaDeals} />
+        {loading ? (
+          <p className="font-body text-muted-foreground">Loading deals...</p>
+        ) : Object.keys(dealsByRegion).length === 0 ? (
+          <p className="font-body text-muted-foreground">No deals found right now. Check back soon!</p>
+        ) : (
+          Object.entries(dealsByRegion).map(([region, deals]) => {
+            const mapped = deals.map((d) => {
+              const originalPrice = Math.round(d.new_price / (1 - d.discount_percent / 100));
+              return {
+                name: d.destinations?.city ?? d.destination,
+                priceGbp: d.new_price,
+                originalPriceGbp: originalPrice,
+                discount: `${Math.round(d.discount_percent)}% cheaper!`,
+                image: getDestinationImage(d.destination),
+                price: convert(d.new_price),
+                originalPrice: convert(originalPrice),
+              };
+            });
+            return <DealSection key={region} region={region} deals={mapped} />;
+          })
+        )}
       </div>
     </div>
   );

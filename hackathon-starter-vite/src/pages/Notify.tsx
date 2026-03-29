@@ -12,24 +12,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const fromOptions = [
-  { value: "lhr", label: "London Heathrow (LHR)" },
-  { value: "jfk", label: "New York JFK (JFK)" },
-  { value: "bkk", label: "Bangkok (BKK)" },
-  { value: "nrt", label: "Tokyo Narita (NRT)" },
-];
+import { useOrigins } from "@/hooks/useOrigins";
+import { supabase } from "@/lib/supabase.js";
 
 const toOptions = [
   { value: "everywhere", label: "Everywhere" },
-  { value: "europe", label: "Europe" },
-  { value: "asia", label: "Asia" },
-  { value: "americas", label: "Americas" },
+  { value: "Europe", label: "Europe" },
+  { value: "Asia Pacific", label: "Asia Pacific" },
+  { value: "Americas", label: "Americas" },
+  { value: "Middle East", label: "Middle East" },
 ];
 
 const durationUnits = ["days", "weeks", "months", "years"];
 
+const cabinClassMap: Record<FlightClass, string> = {
+  Economy: "economy",
+  "Premium Economy": "premium_economy",
+  Business: "business",
+  First: "first",
+};
+
 const Notify = () => {
+  const { origins } = useOrigins();
   const [showSetup, setShowSetup] = useState(false);
   const [flightClass, setFlightClass] = useState<FlightClass>("Economy");
   const [from, setFrom] = useState("");
@@ -38,12 +42,49 @@ const Notify = () => {
   const [unit, setUnit] = useState("days");
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleWithinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (val === "" || /^\d+$/.test(val)) {
       setWithin(val);
     }
+  };
+
+  const handleSubmit = async () => {
+    if (!email || !from) return;
+    setSubmitting(true);
+
+    // 1. Insert subscriber
+    const { data: sub, error: subErr } = await supabase
+      .from("subscribers")
+      .upsert({ email }, { onConflict: "email" })
+      .select("id")
+      .single();
+
+    if (subErr || !sub) { setSubmitting(false); return; }
+
+    // 2. Get destinations based on "To" selection
+    let destQuery = supabase.from("destinations").select("iata_code");
+    if (to !== "everywhere") destQuery = destQuery.eq("region", to);
+    const { data: destinations } = await destQuery;
+
+    // 3. Insert one user_preference per destination
+    if (destinations && destinations.length > 0) {
+      const prefs = destinations.map((d) => ({
+        subscriber_id: sub.id,
+        origin: from.toUpperCase(),
+        destination: d.iata_code,
+        cabin_class: cabinClassMap[flightClass],
+      }));
+      await supabase.from("user_preferences").upsert(prefs, {
+        onConflict: "subscriber_id,origin,destination,cabin_class",
+      });
+    }
+
+    setSubmitting(false);
+    setSubmitted(true);
   };
 
   const introClass = `absolute inset-x-0 flex justify-center transition-all duration-500 ease-in-out ${
@@ -103,9 +144,9 @@ const Notify = () => {
                       <SelectValue placeholder="Enter location" />
                     </SelectTrigger>
                     <SelectContent>
-                      {fromOptions.map((o) => (
-                        <SelectItem key={o.value} value={o.value}>
-                          {o.label}
+                      {origins.map((o) => (
+                        <SelectItem key={o.iata_code} value={o.iata_code}>
+                          {o.city} ({o.iata_code})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -171,12 +212,19 @@ const Notify = () => {
                   consent..
                 </label>
 
-                <Button
-                  disabled={!consent}
-                  className="w-full bg-primary/20 text-primary hover:bg-primary/30 font-body border border-primary/30 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  Submit
-                </Button>
+                {submitted ? (
+                  <p className="text-center text-primary font-body font-bold py-2">
+                    ✅ You're all set! We'll notify you when deals drop.
+                  </p>
+                ) : (
+                  <Button
+                    disabled={!consent || !email || !from || submitting}
+                    onClick={handleSubmit}
+                    className="w-full bg-primary/20 text-primary hover:bg-primary/30 font-body border border-primary/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? "Saving..." : "Submit"}
+                  </Button>
+                )}
               </div>
             </div>
           </div>

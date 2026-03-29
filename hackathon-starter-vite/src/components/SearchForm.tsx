@@ -10,15 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-
-
-const fromOptions = [
-  { value: "anywhere", label: "Any Airport" },
-  { value: "lhr", label: "London Heathrow (LHR)" },
-  { value: "jfk", label: "New York JFK (JFK)" },
-  { value: "bkk", label: "Bangkok (BKK)" },
-  { value: "nrt", label: "Tokyo Narita (NRT)" },
-];
+import { useOrigins } from "@/hooks/useOrigins";
 
 const toOptions = [
   { value: "everywhere", label: "Everywhere" },
@@ -33,6 +25,7 @@ const durationUnits = ["days", "weeks", "months", "years"];
 
 const SearchForm = () => {
   const navigate = useNavigate();
+  const { origins } = useOrigins();
   const [flightClass, setFlightClass] = useState<FlightClass>("Economy");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("everywhere");
@@ -73,8 +66,11 @@ const SearchForm = () => {
             <SelectValue placeholder="Enter location" />
           </SelectTrigger>
           <SelectContent>
-            {fromOptions.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            <SelectItem value="anywhere">Any Airport</SelectItem>
+            {origins.map((o) => (
+              <SelectItem key={o.iata_code} value={o.iata_code}>
+                {o.city} ({o.iata_code})
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>

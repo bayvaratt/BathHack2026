@@ -1,10 +1,9 @@
 import DealCard from "./DealCard";
-import { useCurrency } from "@/contexts/CurrencyContext";
 
 interface Deal {
   name: string;
-  priceUsd: number;
-  originalPriceUsd: number;
+  price: string;
+  originalPrice: string;
   discount: string;
   image: string;
 }
@@ -15,7 +14,6 @@ interface DealSectionProps {
 }
 
 const DealSection = ({ region, deals }: DealSectionProps) => {
-  const { convert } = useCurrency();
   return (
     <div className="mb-[3vw]">
       <h2 className="font-body text-[clamp(1.5rem,2.2vw,2.5rem)] font-normal mb-[1.5vw]">
@@ -26,8 +24,8 @@ const DealSection = ({ region, deals }: DealSectionProps) => {
           <DealCard
             key={i}
             name={deal.name}
-            price={convert(deal.priceUsd)}
-            originalPrice={convert(deal.originalPriceUsd)}
+            price={deal.price}
+            originalPrice={deal.originalPrice}
             discount={deal.discount}
             image={deal.image}
           />
