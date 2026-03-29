@@ -5,11 +5,11 @@ const cabinLabels: Record<string, string> = {
   first: "First Class",
 };
 
-const cabinColors: Record<string, string> = {
-  economy: "bg-blue-500/90 text-white",
-  premium_economy: "bg-purple-500/90 text-white",
-  business: "bg-amber-500/90 text-white",
-  first: "bg-rose-600/90 text-white",
+const cabinDots: Record<string, string> = {
+  economy: "bg-sky-400",
+  premium_economy: "bg-violet-400",
+  business: "bg-amber-400",
+  first: "bg-rose-400",
 };
 
 interface DealCardProps {
@@ -41,8 +41,9 @@ const DealCard = ({ name, country, price, originalPrice, discount, image, cabinC
             {discount}
           </span>
         )}
-        {/* Cabin class badge - top right */}
-        <span className={`absolute top-2 right-2 text-xs font-bold font-body px-2 py-1 rounded-md ${cabinColors[cabinClass] ?? "bg-gray-500/90 text-white"}`}>
+        {/* Cabin class badge - top right (frosted glass style) */}
+        <span className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/40 backdrop-blur-md text-white text-[11px] font-semibold font-body px-2.5 py-1 rounded-full">
+          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cabinDots[cabinClass] ?? "bg-gray-400"}`} />
           {cabinLabels[cabinClass] ?? cabinClass}
         </span>
       </div>

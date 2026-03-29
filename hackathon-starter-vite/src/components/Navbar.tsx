@@ -17,8 +17,8 @@ const Navbar = ({ hideCurrency = false }: { hideCurrency?: boolean }) => {
 
   return (
     <nav className="bg-gradient-to-r from-[hsl(var(--header-gradient-from))] to-[hsl(var(--header-gradient-to))] px-[4vw] py-[1.8vw] flex items-center">
-      <Link to="/" className="font-airone text-[clamp(1.3rem,2.2vw,2.2rem)] tracking-wider text-primary-foreground uppercase flex-shrink-0">
-        Bestination
+      <Link to="/" className="font-poppins font-extrabold text-[clamp(1.4rem,2.2vw,2.4rem)] tracking-tight text-primary-foreground flex-shrink-0">
+        <span className="text-white">B</span>estination
       </Link>
 
       {/* Nav links centered */}
