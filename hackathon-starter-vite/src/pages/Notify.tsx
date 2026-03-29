@@ -261,6 +261,7 @@ const Notify = () => {
           }}
         />
 
+        <div className="absolute top-0 inset-x-0 h-48 bg-gradient-to-b from-background to-transparent" />
         <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-background to-transparent" />
 
         <div className="relative z-10 text-center max-w-2xl px-6 py-20">
@@ -275,7 +276,7 @@ const Notify = () => {
             <span className="font-semibold text-primary">Get notified.</span>
           </h1>
           <p className="font-body text-lg text-muted-foreground mb-10">
-            Our agent monitors 14 destinations 24/7 and alerts you the moment prices drop.
+            Our agent monitors 200+ destinations 24/7 and alerts you the moment prices drop.
           </p>
 
           <Button
@@ -375,7 +376,7 @@ const Notify = () => {
               {/* Email */}
               <div className="flex flex-col">
                 <label className={`text-sm font-body mb-1 ${errors.email ? "text-destructive" : "text-muted-foreground"}`}>
-                  Email
+                  Email<span className="text-accent ml-0.5">*</span>
                 </label>
                 <Input
                   type="email"
@@ -390,7 +391,7 @@ const Notify = () => {
               {/* Phone */}
               <div className="flex flex-col">
                 <label className={`text-sm font-body mb-1 ${errors.phone ? "text-destructive" : "text-muted-foreground"}`}>
-                  WhatsApp number
+                  WhatsApp number<span className="text-accent ml-0.5">*</span>
                 </label>
                 <Input
                   type="tel"

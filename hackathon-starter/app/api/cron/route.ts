@@ -24,12 +24,12 @@ export async function GET(request: Request) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Pick date offset based on current day of month so each run uses a different date
-  const dayOfMonth = new Date().getDate()
-  const daysAhead = DATE_OFFSETS[dayOfMonth % DATE_OFFSETS.length]
-  const departureDate = new Date()
-  departureDate.setDate(departureDate.getDate() + daysAhead)
-  const date = departureDate.toISOString().split('T')[0]
+  // Pre-compute all 4 departure dates
+  const dates = DATE_OFFSETS.map((offset) => {
+    const d = new Date()
+    d.setDate(d.getDate() + offset)
+    return d.toISOString().split('T')[0]
+  })
 
   await supabase.from('notifications').delete().neq('id', '00000000-0000-0000-0000-000000000000')
   await supabase.from('deals').delete().neq('id', '00000000-0000-0000-0000-000000000000')
@@ -44,12 +44,15 @@ export async function GET(request: Request) {
     origin: typeof ORIGINS[number]
     dest: typeof DESTINATIONS[number]
     cabinClass: typeof CABIN_CLASSES[number]
+    date: string
   }> = []
 
+  let taskIndex = 0
   for (const origin of ORIGINS) {
     for (const dest of DESTINATIONS) {
       for (const cabinClass of CABIN_CLASSES) {
-        tasks.push({ origin, dest, cabinClass })
+        tasks.push({ origin, dest, cabinClass, date: dates[taskIndex % dates.length] })
+        taskIndex++
       }
     }
   }
@@ -57,7 +60,7 @@ export async function GET(request: Request) {
   for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
     const batch = tasks.slice(i, i + BATCH_SIZE)
     const results = await Promise.allSettled(
-      batch.map(async ({ origin, dest, cabinClass }) => {
+      batch.map(async ({ origin, dest, cabinClass, date }) => {
         const offerRequest = await duffel.offerRequests.create({
           slices: [{
             origin: origin.code,
@@ -264,8 +267,7 @@ export async function GET(request: Request) {
   }
 
   return Response.json({
-    date,
-    days_ahead: daysAhead,
+    dates,
     checked_at: new Date().toISOString(),
     prices_saved: pricesSaved,
     deals_found: dealsFound,

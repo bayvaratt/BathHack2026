@@ -19,7 +19,7 @@ const Navbar = ({ hideCurrency = false }: { hideCurrency?: boolean }) => {
     <nav className="bg-[hsl(var(--navbar-bg))] px-[4vw] py-[1.8vw] relative flex items-center">
       {/* Logo — left */}
       <Link to="/" className="font-poppins font-extrabold text-[clamp(1.4rem,2.2vw,2.4rem)] tracking-tight text-primary-foreground flex-shrink-0">
-        <span className="text-white">B</span>estination
+        <span className="text-white">B</span>estination.
       </Link>
 
       {/* Nav links — absolutely centred in the full navbar */}
