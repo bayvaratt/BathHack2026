@@ -27,12 +27,12 @@ const Index = () => {
       <Navbar />
 
       {/* Hero search area */}
-      <div className="bg-linear-to-b from-[hsl(var(--header-gradient-to))] to-background pt-4 pb-10 px-4">
+      <div className="bg-gradient-to-b from-primary to-background pt-[2.5vw] pb-[5vw] px-[3vw]">
         <SearchForm />
       </div>
 
       {/* Deal sections */}
-      <div className="max-w-4xl mx-auto px-6 py-6">
+      <div className="w-[90%] max-w-[1400px] mx-auto py-[2vw]">
         <DealSection region="Europe" deals={europeDeals} />
         <DealSection region="Asia" deals={asiaDeals} />
       </div>

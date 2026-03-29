@@ -1,9 +1,8 @@
 import type { Config } from "tailwindcss";
-import tailwindcssAnimate from "tailwindcss-animate";
 
-const config: Config = {
-  darkMode: "class",
-  content: ["./src/**/*.{ts,tsx}", "./index.html"],
+export default {
+  darkMode: ["class"],
+  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
     container: {
@@ -67,6 +66,7 @@ const config: Config = {
       fontFamily: {
         heading: ['"Oswald"', 'sans-serif'],
         body: ['"Open Sans"', 'sans-serif'],
+        airone: ['"Airone"', 'sans-serif'],
       },
       keyframes: {
         "accordion-down": {
@@ -92,8 +92,5 @@ const config: Config = {
       },
     },
   },
-  plugins: [tailwindcssAnimate],
-};
-
-export default config;
-
+  plugins: [require("tailwindcss-animate")],
+} satisfies Config;

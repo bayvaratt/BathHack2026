@@ -51,25 +51,25 @@ const SearchForm = () => {
   };
 
   return (
-    <div className="bg-popover rounded-lg p-5 shadow-md max-w-3xl mx-auto">
+    <div className="bg-popover rounded-lg p-[clamp(1rem,2vw,2rem)] shadow-md w-[90%] max-w-[1200px] mx-auto">
       {/* Flight class checkboxes - compact, not full width */}
       <div className="mb-4">
         <FlightClassSelector selected={flightClass} onChange={setFlightClass} />
       </div>
 
       {/* Labels */}
-      <div className="grid grid-cols-[1fr_1fr_1.2fr_auto] gap-3 mb-1">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1.2fr_auto] gap-x-3 gap-y-1 mb-1">
         <span className="text-xs font-body text-muted-foreground">From<span className="text-accent">*</span></span>
-        <span className="text-xs font-body text-muted-foreground">To</span>
-        <span className="text-xs font-body text-muted-foreground">Within</span>
-        <span className="w-[100px]" />
+        <span className="text-xs font-body text-muted-foreground hidden sm:block">To</span>
+        <span className="text-xs font-body text-muted-foreground hidden sm:block">Within</span>
+        <span className="w-[100px] hidden sm:block" />
       </div>
 
-      {/* Inputs row - separate boxes, only Within is connected */}
-      <div className="grid grid-cols-[1fr_1fr_1.2fr_auto] gap-3">
+      {/* Inputs row */}
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1.2fr_auto] gap-3">
         {/* From */}
         <Select value={from} onValueChange={setFrom}>
-          <SelectTrigger className="h-10 text-xs">
+          <SelectTrigger className="h-[clamp(2.2rem,3vw,3rem)] text-[clamp(0.75rem,0.9vw,1rem)]">
             <SelectValue placeholder="Enter location" />
           </SelectTrigger>
           <SelectContent>
@@ -81,7 +81,7 @@ const SearchForm = () => {
 
         {/* To */}
         <Select value={to} onValueChange={setTo}>
-          <SelectTrigger className="h-10 text-xs">
+          <SelectTrigger className="h-[clamp(2.2rem,3vw,3rem)] text-[clamp(0.75rem,0.9vw,1rem)]">
               <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -92,9 +92,9 @@ const SearchForm = () => {
         </Select>
 
         {/* Within - connected number + unit */}
-        <div className="flex h-10 rounded-md border border-input overflow-hidden">
+        <div className="flex h-[clamp(2.2rem,3vw,3rem)] rounded-md border border-input overflow-hidden">
           <Input
-            className="h-full text-xs flex-1 min-w-0 border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="h-full text-[clamp(0.75rem,0.9vw,1rem)] flex-1 min-w-0 border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
             placeholder="Enter number"
             value={within}
             onChange={handleWithinChange}
@@ -102,7 +102,7 @@ const SearchForm = () => {
           />
           <div className="w-px bg-border" />
           <Select value={unit} onValueChange={setUnit}>
-            <SelectTrigger className="h-full text-xs w-20 border-0 rounded-none focus:ring-0 focus:ring-offset-0">
+            <SelectTrigger className="h-full text-[clamp(0.75rem,0.9vw,1rem)] w-24 border-0 rounded-none focus:ring-0 focus:ring-offset-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -115,7 +115,7 @@ const SearchForm = () => {
 
         {/* Search button */}
         <Button
-          className="h-10 bg-foreground text-background hover:bg-foreground/90 font-body text-xs px-6"
+          className="h-[clamp(2.2rem,3vw,3rem)] bg-foreground text-background hover:bg-foreground/90 font-body text-[clamp(0.75rem,0.9vw,1rem)] px-[clamp(1rem,2vw,2rem)]"
           onClick={handleSearch}
         >
           SEARCH
