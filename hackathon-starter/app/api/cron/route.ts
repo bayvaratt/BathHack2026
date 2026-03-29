@@ -6,6 +6,8 @@ const CABIN_CLASSES = ['economy', 'premium_economy', 'business', 'first'] as con
 const DEAL_THRESHOLD = 0.3
 const DAYS_AHEAD = 30
 
+export const maxDuration = 60
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   if (
@@ -31,7 +33,7 @@ export async function GET(request: Request) {
     for (const dest of DESTINATIONS) {
       for (const cabinClass of CABIN_CLASSES) {
         try {
-          await new Promise(r => setTimeout(r, 500))
+          await new Promise(r => setTimeout(r, 100))
           const offerRequest = await duffel.offerRequests.create({
             slices: [{ origin: origin.code, destination: dest.code, departure_date: date, arrival_time: null, departure_time: null }],
             passengers: [{ type: 'adult' }],
